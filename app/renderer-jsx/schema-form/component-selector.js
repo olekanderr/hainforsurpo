@@ -9,13 +9,11 @@ function select(schema) {
     const componentClass = componentInfo.componentClass;
     // String matching
     if (lo_isString(filter)) {
-      if (filter === schema.type)
-        return componentClass;
+      if (filter === schema.type) return componentClass;
       continue;
     }
     // Function matching
-    if (filter(schema))
-      return componentClass;
+    if (filter(schema)) return componentClass;
   }
   return null;
 }
@@ -28,5 +26,6 @@ function inject(filter, componentClass) {
 }
 
 module.exports = {
-  select, inject
+  select,
+  inject
 };

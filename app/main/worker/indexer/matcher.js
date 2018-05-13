@@ -1,7 +1,8 @@
 'use strict';
 
 const MAX_MATCH_LENGTH = 15;
-const MAX_MATCH_SCORE = (MAX_MATCH_LENGTH + MAX_MATCH_LENGTH * MAX_MATCH_LENGTH) * 0.5;
+const MAX_MATCH_SCORE =
+  (MAX_MATCH_LENGTH + MAX_MATCH_LENGTH * MAX_MATCH_LENGTH) * 0.5;
 
 function computeMatchScore(text, query_lower) {
   const text_lower = text.toLowerCase();
@@ -20,9 +21,9 @@ function computeMatchScore(text, query_lower) {
     add += 1;
     fuzzyScore += add;
 
-    const noMoreMatches = (pattern_i >= query_lower.length || pattern_i >= MAX_MATCH_LENGTH);
-    if (noMoreMatches)
-      break;
+    const noMoreMatches =
+      pattern_i >= query_lower.length || pattern_i >= MAX_MATCH_LENGTH;
+    if (noMoreMatches) break;
   }
 
   // Normalize Score

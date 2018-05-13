@@ -1,6 +1,6 @@
 'use strict';
 
-((function startup() {
+(function startup() {
   if (require('electron-squirrel-startup')) return;
 
   // workaround for fixing auto-launch cwd problem
@@ -24,9 +24,8 @@
 
   const Server = require('./server');
   const server = new Server();
-  server.launch()
-    .catch((e) => {
-      dialog.showErrorBox('Hain', `Unhandled Error: ${e.stack || e}`);
-      electronApp.quit();
-    });
-})());
+  server.launch().catch((e) => {
+    dialog.showErrorBox('Hain', `Unhandled Error: ${e.stack || e}`);
+    electronApp.quit();
+  });
+})();

@@ -14,8 +14,7 @@ module.exports = class AutoLauncher {
   enable() {
     return new Promise((resolve, reject) => {
       this.reg.set(this.appName, Registry.REG_SZ, this.appPath, (err) => {
-        if (err)
-          return reject(err);
+        if (err) return reject(err);
         resolve();
       });
     });
@@ -23,8 +22,7 @@ module.exports = class AutoLauncher {
   disable() {
     return new Promise((resolve, reject) => {
       this.reg.remove(this.appName, (err) => {
-        if (err)
-          return reject(err);
+        if (err) return reject(err);
         resolve();
       });
     });

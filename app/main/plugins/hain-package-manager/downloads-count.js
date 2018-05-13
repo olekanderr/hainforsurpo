@@ -13,18 +13,18 @@ const PERIOD_LAST_MONTH = 'last-month';
 function _getDownloadCountForPoint(packages, period) {
   const query = packages.join(',');
   const query_enc = encodeURIComponent(query);
-  const baseUrl = `http://api.npmjs.org/downloads/point/${period}/${query_enc},`
-  return got(baseUrl, { json: true }).then(res => res.body);
+  const baseUrl = `http://api.npmjs.org/downloads/point/${period}/${query_enc},`;
+  return got(baseUrl, { json: true }).then((res) => res.body);
 }
 
 function _getDownloadCountForRange(packages, range) {
   const query = packages.join(',');
   const query_enc = encodeURIComponent(query);
-  const baseUrl = `http://api.npmjs.org/downloads/range/${range}/${query_enc},`
-  return got(baseUrl, { json: true }).then(res => {
+  const baseUrl = `http://api.npmjs.org/downloads/range/${range}/${query_enc},`;
+  return got(baseUrl, { json: true }).then((res) => {
     const { body } = res;
     const result = {};
-    Object.keys(body).forEach(pkg => {
+    Object.keys(body).forEach((pkg) => {
       // skip empty keys
       if (!pkg) return;
 
@@ -32,12 +32,15 @@ function _getDownloadCountForRange(packages, range) {
         package: pkg,
         start: body[pkg].start,
         end: body[pkg].end,
-        downloads: 0, // initialize to zero
+        downloads: 0 // initialize to zero
       };
 
       if (body[pkg].downloads) {
         // update downloads if there are downloads
-        result[pkg].downloads = body[pkg].downloads.reduce((sum, dl) => sum + dl.downloads, 0);
+        result[pkg].downloads = body[pkg].downloads.reduce(
+          (sum, dl) => sum + dl.downloads,
+          0
+        );
       }
     });
     return result;
@@ -59,14 +62,17 @@ function getDownloadsCount(packages, period) {
   const promises = [];
   for (const packageChunk of packageChunks) {
     let promise;
-    if (! period) {
+    if (!period) {
       promise = _getDownloadCountForRange(packageChunk, RANGE_ALL);
     } else {
-      promise = _getDownloadCountForPoint(packageChunk, period || PERIOD_LAST_MONTH);
+      promise = _getDownloadCountForPoint(
+        packageChunk,
+        period || PERIOD_LAST_MONTH
+      );
     }
     promises.push(promise);
   }
-  return Promise.all(promises).then(results => {
+  return Promise.all(promises).then((results) => {
     let merged = {};
     for (const ret of results) {
       merged = lo_assign(merged, ret);

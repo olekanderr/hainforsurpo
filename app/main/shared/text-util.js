@@ -9,39 +9,34 @@ function _sanitizeHtml(text) {
   return sanitizeHtml(text, {
     allowedTags: ['a', 'b', 'i', 'u', 'em', 'strong', 'span'],
     allowedAttributes: {
-      'a': ['href'],
-      'i': ['class'],
-      'span': ['class', 'style']
+      a: ['href'],
+      i: ['class'],
+      span: ['class', 'style']
     }
   });
 }
 
 function sanitize(txtObj) {
-  if (txtObj === undefined)
-    return undefined;
-  if (lo_isString(txtObj))
-    return _sanitizeHtml(txtObj);
+  if (txtObj === undefined) return undefined;
+  if (lo_isString(txtObj)) return _sanitizeHtml(txtObj);
   return lo_assign(txtObj, {
     text: _sanitizeHtml(txtObj.text)
   });
 }
 
 function extractText(text) {
-  if (!lo_isPlainObject(text))
-    return text;
+  if (!lo_isPlainObject(text)) return text;
   return text.text;
 }
 
 function extractTextStyle(text, extraStyle) {
-  if (!lo_isPlainObject(text))
-    return lo_assign({}, extraStyle);
+  if (!lo_isPlainObject(text)) return lo_assign({}, extraStyle);
   const singleLineStyle = {
     textOverflow: 'ellipsis',
     whiteSpace: 'nowrap'
   };
   let style = lo_assign({}, extraStyle);
-  if (text.singleLine)
-    style = lo_assign(style, singleLineStyle);
+  if (text.singleLine) style = lo_assign(style, singleLineStyle);
   return style;
 }
 

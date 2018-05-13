@@ -14,17 +14,14 @@ module.exports = (context) => {
 
   function parseUrlForIndexer(query) {
     const query_trim = query.trim();
-    if (query_trim.length <= 2)
-      return;
+    if (query_trim.length <= 2) return;
 
     const urls = twitter.extractUrls(query_trim);
-    if (urls.length === 0)
-      return;
+    if (urls.length === 0) return;
 
     const url = lo_first(urls);
     const ratio = url.length / query_trim.length;
-    if (ratio <= 0.9)
-      return;
+    if (ratio <= 0.9) return;
 
     return {
       id: url,

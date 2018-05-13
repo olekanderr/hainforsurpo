@@ -12,17 +12,24 @@ module.exports = class Server {
     this.workerClient = new WorkerClient();
     this.workerProxy = new WorkerProxy(this.workerClient);
     this.prefManager = new PrefManager(this.workerProxy);
-    this.appService = new AppService(this.prefManager, this.workerClient, this.workerProxy);
+    this.appService = new AppService(
+      this.prefManager,
+      this.workerClient,
+      this.workerProxy
+    );
     this.apiService = new ApiService(this.appService);
-    this.workerHandler = new WorkerHandler(this.workerClient, this.appService, this.apiService);
+    this.workerHandler = new WorkerHandler(
+      this.workerClient,
+      this.appService,
+      this.apiService
+    );
   }
   launch() {
     this.apiService.loadApiModules();
     this.workerHandler.initialize();
-    return this.appService.initializeAndLaunch()
-      .then(() => {
-        this.workerClient.load();
-        this.workerProxy.initialize(this.prefManager.appPref.get());
-      });
+    return this.appService.initializeAndLaunch().then(() => {
+      this.workerClient.load();
+      this.workerProxy.initialize(this.prefManager.appPref.get());
+    });
   }
 };

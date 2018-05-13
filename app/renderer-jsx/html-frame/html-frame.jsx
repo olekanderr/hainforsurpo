@@ -32,13 +32,9 @@ class HTMLFrame extends React.Component {
 
   render() {
     this.counter += 1;
-    if (this.counter > 10000)
-      this.counter = 0;
-    return (
-      <iframe key={this.counter} {...this.props} />
-    );
+    if (this.counter > 10000) this.counter = 0;
+    return <iframe key={this.counter} {...this.props} />;
   }
 }
-
 
 module.exports = HTMLFrame;

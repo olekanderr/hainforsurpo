@@ -12,7 +12,7 @@ const CONTEXT = '@indexer';
 class IndexerManager {
   constructor(localStorage) {
     this.indexers = {};
-    this.executeFunc = (pluginId, id, payload, extra) => { };
+    this.executeFunc = (pluginId, id, payload, extra) => {};
     this.itemPriorityManager = new ItemPriorityManager(localStorage);
     this.itemPriorityManager.load();
   }
@@ -26,9 +26,12 @@ class IndexerManager {
     return this.sortAndRefineSearchedResults(totalResults, 15);
   }
   sortAndRefineSearchedResults(results, limit) {
-    const sorted = lo_orderBy(results, [this._computeItemScoreWithPriority.bind(this)], ['desc']);
-    if (sorted.length > limit)
-      sorted.length = limit;
+    const sorted = lo_orderBy(
+      results,
+      [this._computeItemScoreWithPriority.bind(this)],
+      ['desc']
+    );
+    if (sorted.length > limit) sorted.length = limit;
     const refinedItems = sorted.map((x) => {
       const payload = {
         pluginId: x.pluginId,
@@ -49,7 +52,10 @@ class IndexerManager {
   }
   _computeItemScoreWithPriority(item) {
     const itemPriorityId = this.makeItemPriorityId(item.pluginId, item.id);
-    const score = this.itemPriorityManager.applyPriorityToScore(itemPriorityId, item.score);
+    const score = this.itemPriorityManager.applyPriorityToScore(
+      itemPriorityId,
+      item.score
+    );
     return score;
   }
   createIndexerForPlugin(pluginId, defaultIcon) {
@@ -59,7 +65,7 @@ class IndexerManager {
   }
   execute(pluginId, id, extraPayload, extra) {
     if (!this.executeFunc) {
-      logger.error('Can\'t find a execute function');
+      logger.error("Can't find a execute function");
       return;
     }
     this.executeFunc(pluginId, id, extraPayload, extra);
@@ -72,8 +78,7 @@ class IndexerManager {
     this.executeFunc = executeFunc;
   }
   makeItemPriorityId(pluginId, id) {
-    if (!lo_isString(id))
-      return null;
+    if (!lo_isString(id)) return null;
     return `${pluginId}?@${id}`;
   }
 }

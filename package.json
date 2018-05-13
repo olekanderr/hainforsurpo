@@ -6,8 +6,9 @@
     "dev": "gulp && node ./run",
     "build": "gulp build-all",
     "build-debian": "gulp build-debian",
-    "test": "cd app && jest",
-    "tdd": "cd app && jest --watch"
+    "test": "eslint . && cd app && jest",
+    "tdd": "cd app && jest --watch",
+    "lint": "eslint ."
   },
   "author": "Heejin Lee <monster@teamappetizer.com>",
   "license": "MIT",
@@ -16,7 +17,7 @@
     "url": "https://github.com/hainproject/hain.git"
   },
   "devDependencies": {
-    "@types/electron": "^1.4.35",
+    "@types/electron": "^1.6.10",
     "@types/node": "^7.0.12",
     "babel-cli": "^6.24.1",
     "babel-core": "^6.24.1",
@@ -26,13 +27,14 @@
     "babel-preset-react": "^6.24.1",
     "del": "^2.2.0",
     "electron": "^2.0.0",
-    "electron-edge": "^6.5.5",
     "electron-packager": "^8.6.0",
     "electron-rebuild": "^1.5.7",
     "electron-winstaller": "^2.5.2",
     "eslint": "^3.2.2",
+    "eslint-config-prettier": "^2.9.0",
     "eslint-config-recommended": "^1.4.0",
     "eslint-plugin-import": "^1.14.0",
+    "eslint-plugin-prettier": "^2.6.0",
     "eslint-plugin-react": "^5.2.2",
     "gulp": "^3.9.1",
     "gulp-babel": "^6.1.2",
@@ -42,7 +44,8 @@
     "gulp-sourcemaps": "^2.5.1",
     "gulp-util": "^3.0.7",
     "gulp-zip": "^4.0.0",
-    "jest-cli": "12.1.1"
+    "jest-cli": "12.1.1",
+    "prettier": "^1.12.1"
   },
   "optionalDependencies": {
     "electron-installer-debian": "^0.3.0"

@@ -17,7 +17,7 @@ module.exports = class TrayService {
   }
   createTray() {
     const self = this;
-    return co(function* () {
+    return co(function*() {
       try {
         self.autoLaunchActivated = yield self.autoLauncher.isEnabled();
       } catch (e) {}
@@ -25,28 +25,37 @@ module.exports = class TrayService {
     });
   }
   _createTray() {
-    const iconFile = process.platform === 'win32' ? 'tray_16.ico' : 'menubar.png';
-    const iconPath = path.normalize(`${__dirname}/../../../../images/${iconFile}`);
+    const iconFile =
+      process.platform === 'win32' ? 'tray_16.ico' : 'menubar.png';
+    const iconPath = path.normalize(
+      `${__dirname}/../../../../images/${iconFile}`
+    );
     const tray = new Tray(iconPath);
     const menu = Menu.buildFromTemplate([
       {
-        label: 'Hain', click: () => this.appService.open()
+        label: 'Hain',
+        click: () => this.appService.open()
       },
       {
-        label: 'Auto-launch', type: 'checkbox', checked: this.autoLaunchActivated,
+        label: 'Auto-launch',
+        type: 'checkbox',
+        checked: this.autoLaunchActivated,
         click: () => this.toggleAutoLaunch()
       },
       {
         type: 'separator'
       },
       {
-        label: 'Preferences', click: () => this.appService.openPreferences()
+        label: 'Preferences',
+        click: () => this.appService.openPreferences()
       },
       {
-        label: 'Restart', click: () => this.appService.restart()
+        label: 'Restart',
+        click: () => this.appService.restart()
       },
       {
-        label: 'Quit', click: () => this.appService.quit()
+        label: 'Quit',
+        click: () => this.appService.quit()
       }
     ]);
     tray.on('click', () => this.appService.open());
@@ -56,10 +65,8 @@ module.exports = class TrayService {
     this.tray = tray;
   }
   toggleAutoLaunch() {
-    if (this.autoLaunchActivated)
-      this.autoLauncher.disable();
-    else
-      this.autoLauncher.enable();
+    if (this.autoLaunchActivated) this.autoLauncher.disable();
+    else this.autoLauncher.enable();
     this.autoLaunchActivated = !this.autoLaunchActivated;
   }
 };

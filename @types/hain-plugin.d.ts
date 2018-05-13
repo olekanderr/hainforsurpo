@@ -9,7 +9,6 @@ type bitfield = number;
  * @see https://github.com/simonlast/node-persist
  */
 declare namespace NodePersist {
-
   interface InitOptions {
     dir?: string;
     stringify?: (toSerialize: any) => string;
@@ -26,11 +25,18 @@ declare namespace NodePersist {
 
     initSync(options?: InitOptions): void;
 
-    getItem(key: string, callback?: (err: any, value: any) => any): Promise<any>;
+    getItem(
+      key: string,
+      callback?: (err: any, value: any) => any
+    ): Promise<any>;
 
     getItemSync(key: string): any;
 
-    setItem(key: string, value: any, callback?: (err: any) => any): Promise<any>;
+    setItem(
+      key: string,
+      value: any,
+      callback?: (err: any) => any
+    ): Promise<any>;
 
     setItemSync(key: string, value: any): void;
 
@@ -63,14 +69,12 @@ declare namespace NodePersist {
 }
 
 declare namespace hain {
-
   /**
    * These are the functions your plugin can/must implement
    *
    * @since v0.5
    */
   export class Plugin {
-
     /**
      *  (Optional)
      *  This function will be invoked on startup once. you can do any preparations here.
@@ -144,10 +148,10 @@ declare namespace hain {
   }
 
   export enum KeyBitfield {
-    CTRL  = 1,
-    ALT   = 2,
+    CTRL = 1,
+    ALT = 2,
     SHIFT = 4,
-    META  = 8,
+    META = 8
   }
 
   /**
@@ -396,9 +400,7 @@ declare namespace hain {
   /**
    * @since v0.5
    */
-  export interface PluginLocalStorage extends NodePersist.LocalStorage {
-
-  }
+  export interface PluginLocalStorage extends NodePersist.LocalStorage {}
 
   /**
    * @since v0.5
@@ -465,13 +467,13 @@ declare namespace hain {
    * @example
    * <pre>
    *  function search(query, res) {
-	 *	    res.add({
-	 *	        id: 'temp',
-	 *	        title: 'Fetching...',
-	 *	        desc: 'Please wait a second'
-	 *	    });
-	 *	    setTimeout(() => res.remove('temp'), 1000);
-	 *	}
+   *	    res.add({
+   *	        id: 'temp',
+   *	        title: 'Fetching...',
+   *	        desc: 'Please wait a second'
+   *	    });
+   *	    setTimeout(() => res.remove('temp'), 1000);
+   *	}
    * </pre>
    */
   export interface ResponseObject {
@@ -526,7 +528,10 @@ declare namespace hain {
      * @param key       A unique ID which you can later use to remove or modify this addition
      * @param callback    The callback function, this will be called synchronously
      */
-    set(key: string, callback: (query: string) => IndexedResult | IndexedResult[]): void;
+    set(
+      key: string,
+      callback: (query: string) => IndexedResult | IndexedResult[]
+    ): void;
 
     /**
      * Removes the set of results added with the given key
@@ -534,6 +539,5 @@ declare namespace hain {
      * @param key       A unique ID which you can later use to remove or modify this addition
      */
     remove(key: string): void;
-
   }
 }

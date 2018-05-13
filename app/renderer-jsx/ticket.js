@@ -11,8 +11,7 @@ class Ticket {
 
   newTicket() {
     this.ticket++;
-    if (this.ticket > 99999999)
-      this.ticket = 0;
+    if (this.ticket > 99999999) this.ticket = 0;
     return this.ticket;
   }
 }

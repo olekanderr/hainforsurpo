@@ -2,14 +2,8 @@
 
 describe('plugins.js', () => {
   describe('plugin preferences', () => {
+    describe('getPreferences', () => {});
 
-    describe('getPreferences', () => {
-
-    });
-
-    describe('updatePreferences', () => {
-
-    });
-
+    describe('updatePreferences', () => {});
   });
 });

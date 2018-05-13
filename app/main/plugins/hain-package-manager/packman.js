@@ -23,7 +23,6 @@ function _createPackageInfo(name, data, internal) {
 }
 
 class Packman {
-
   constructor(opts) {
     this.repoDir = opts.mainRepo;
     this.internalRepoDir = opts.internalRepo;
@@ -38,12 +37,16 @@ class Packman {
 
   readPackages() {
     const self = this;
-    co(function* () {
+    co(function*() {
       self.packages = [];
       yield fileUtil.ensureDir(self.repoDir);
       const packageDirs = yield fileUtil.readdir(self.repoDir);
       for (const _packageDir of packageDirs) {
-        const packageJsonFile = path.join(self.repoDir, _packageDir, 'package.json');
+        const packageJsonFile = path.join(
+          self.repoDir,
+          _packageDir,
+          'package.json'
+        );
         try {
           const fileContents = yield fileUtil.readFile(packageJsonFile);
           const pkgJson = JSON.parse(fileContents.toString());
@@ -58,7 +61,11 @@ class Packman {
       self.internalPackages = [];
       const internalPackageDirs = yield fileUtil.readdir(self.internalRepoDir);
       for (const _packageDir of internalPackageDirs) {
-        const packageJsonFile = path.join(self.internalRepoDir, _packageDir, 'package.json');
+        const packageJsonFile = path.join(
+          self.internalRepoDir,
+          _packageDir,
+          'package.json'
+        );
         try {
           const fileContents = yield fileUtil.readFile(packageJsonFile);
           const pkgJson = JSON.parse(fileContents.toString());
@@ -85,17 +92,22 @@ class Packman {
   }
 
   hasPackage(packageName) {
-    return (this.getPackage(packageName) !== undefined);
+    return this.getPackage(packageName) !== undefined;
   }
 
   installPackage(packageName, versionRange) {
     const self = this;
-    return co(function* () {
+    return co(function*() {
       if (self.hasPackage(packageName))
         throw `Installed package: ${packageName}`;
 
       const saveDir = path.join(self.installDir, packageName);
-      const data = yield packageControl.installPackage(packageName, versionRange, saveDir, self.tempDir);
+      const data = yield packageControl.installPackage(
+        packageName,
+        versionRange,
+        saveDir,
+        self.tempDir
+      );
 
       self.packages.push(_createPackageInfo(packageName, data));
     });
@@ -106,7 +118,7 @@ class Packman {
       throw `Can't find a package: ${packageName}`;
 
     fs.appendFileSync(targetListFile, `${packageName}\n`);
-    lo_remove(this.packages, x => x.name === packageName);
+    lo_remove(this.packages, (x) => x.name === packageName);
   }
 
   uninstallPackageForUpdate(packageName) {
@@ -116,7 +128,6 @@ class Packman {
   uninstallPackage(packageName) {
     this._uninstallPackage(this.uninstallListFile, packageName);
   }
-
 }
 
 module.exports = Packman;

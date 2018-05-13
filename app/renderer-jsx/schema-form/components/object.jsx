@@ -14,24 +14,28 @@ class ObjectComponent extends React.Component {
     let title = schema.title || name;
     const description = utils.wrapDescription(schema.description);
 
-    if (title)
-      title = (<h4>{title}</h4>);
+    if (title) title = <h4>{title}</h4>;
 
     for (const childName in properties) {
       const property = properties[childName];
       const type = property.type;
       const Component = componentSelector.select(property);
-      if (Component === undefined)
-        continue;
+      if (Component === undefined) continue;
 
       const childModel = obj[childName];
       const childPath = `${path}.${childName}`;
 
       childComponents.push(
         <div key={childName}>
-          <Component key={childName} name={childName} path={childPath}
-                   schema={property} model={childModel}
-                   onChange={onChange} errors={errors} />
+          <Component
+            key={childName}
+            name={childName}
+            path={childPath}
+            schema={property}
+            model={childModel}
+            onChange={onChange}
+            errors={errors}
+          />
           <br />
         </div>
       );

@@ -15,7 +15,11 @@ module.exports = class MainWindow {
     this.workerProxy = workerProxy;
     this.appPref = appPref;
     this.browserWindow = null;
-    this.rpc = RpcChannel.create('#mainWindow', this._send.bind(this), this._on.bind(this));
+    this.rpc = RpcChannel.create(
+      '#mainWindow',
+      this._send.bind(this),
+      this._on.bind(this)
+    );
     this._setupHandlers();
   }
 
@@ -35,8 +39,7 @@ module.exports = class MainWindow {
       skipTaskbar: true
     });
 
-    if (onComplete)
-      browserWindow.webContents.on('did-finish-load', onComplete);
+    if (onComplete) browserWindow.webContents.on('did-finish-load', onComplete);
 
     browserWindow.webContents.on('new-window', (evt, url) => {
       shell.openExternal(encodeURI(url));
@@ -44,8 +47,7 @@ module.exports = class MainWindow {
     });
     browserWindow.loadURL(`file://${__dirname}/../../../../dist/index.html`);
     browserWindow.on('blur', () => {
-      if (browserWindow.webContents.isDevToolsOpened())
-        return;
+      if (browserWindow.webContents.isDevToolsOpened()) return;
       this.hide(true);
     });
 
@@ -81,32 +83,30 @@ module.exports = class MainWindow {
   }
 
   show(query) {
-    if (this.browserWindow === null)
-      return;
+    if (this.browserWindow === null) return;
 
     platformUtil.saveFocus();
 
     if (!this.browserWindow.isVisible())
-      windowUtil.centerWindowOnSelectedScreen(this.browserWindow, this.appPref.get('openOnActiveDisplay'));
+      windowUtil.centerWindowOnSelectedScreen(
+        this.browserWindow,
+        this.appPref.get('openOnActiveDisplay')
+      );
 
     this.browserWindow.show();
-    if(query)
-      this.setQuery(query);
+    if (query) this.setQuery(query);
   }
 
   hide(dontRestoreFocus) {
-    if (this.browserWindow === null)
-      return;
+    if (this.browserWindow === null) return;
     this.browserWindow.setPosition(0, -10000);
     this.browserWindow.hide();
 
-    if (!dontRestoreFocus)
-      platformUtil.restoreFocus();
+    if (!dontRestoreFocus) platformUtil.restoreFocus();
   }
 
   toggle(query) {
-    if (this.browserWindow === null)
-      return;
+    if (this.browserWindow === null) return;
 
     if (query || !this.browserWindow.isVisible()) {
       this.show();
@@ -117,8 +117,7 @@ module.exports = class MainWindow {
   }
 
   setQuery(query) {
-    if (query !== undefined)
-      this.rpc.call('setQuery', query);
+    if (query !== undefined) this.rpc.call('setQuery', query);
   }
 
   setSelectionIndex(selId) {

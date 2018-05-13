@@ -1,0 +1,4 @@
+app/renderer/
+app/dist/
+app/node_modules/
+node_modules/

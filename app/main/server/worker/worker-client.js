@@ -14,7 +14,11 @@ module.exports = class WorkerClient extends EventEmitter {
     super();
 
     this.workerProcess = null;
-    this.rpc = RpcChannel.create('#worker', this.send.bind(this), this.on.bind(this));
+    this.rpc = RpcChannel.create(
+      '#worker',
+      this.send.bind(this),
+      this.on.bind(this)
+    );
   }
   reload() {
     logger.debug('WorkerWrapper: reloading worker');
@@ -27,16 +31,20 @@ module.exports = class WorkerClient extends EventEmitter {
 
     const workerPath = path.join(__dirname, '../../worker/index.js');
     if (!fs.existsSync(workerPath))
-      throw new Error('can\'t execute plugin process');
+      throw new Error("can't execute plugin process");
 
     const workerOptions = {
-      execArgv: ['--optimize_for_size', '--gc_global', '--always_compact'],
+      execArgv: ['--optimize_for_size', '--gc_global', '--always_compact']
     };
 
     if (process.platform === 'win32') {
-      this.workerProcess = cp.fork(workerPath, [], lo_assign(workerOptions, {
-        silent: true
-      }));
+      this.workerProcess = cp.fork(
+        workerPath,
+        [],
+        lo_assign(workerOptions, {
+          silent: true
+        })
+      );
 
       // Workaround for Electron 1.3.4's strange stdio redirection
       this.workerProcess.stdout.on('data', process.stdout.write);
@@ -51,14 +59,12 @@ module.exports = class WorkerClient extends EventEmitter {
     this.workerProcess.on('message', (msg) => this._handleWorkerMessage(msg));
   }
   terminate() {
-    if (this.workerProcess === null)
-      return;
+    if (this.workerProcess === null) return;
     this.workerProcess.kill();
     this.workerProcess = null;
   }
   send(channel, payload) {
-    if (this.workerProcess === null)
-      return;
+    if (this.workerProcess === null) return;
     this.workerProcess.send({ channel, payload });
   }
   _handleWorkerMessage(msg) {

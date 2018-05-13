@@ -7,11 +7,7 @@
       "items": {
         "type": "string"
       },
-      "default": [
-        "/Applications",
-        "~/Applications",
-        "~/Desktop"
-      ]
+      "default": ["/Applications", "~/Applications", "~/Desktop"]
     }
   }
 }

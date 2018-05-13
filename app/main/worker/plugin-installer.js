@@ -9,12 +9,13 @@ const conf = require('../conf');
 const logger = require('../shared/logger');
 
 function removeUninstalledPlugins(listFile, removeData) {
-  if (!fs.existsSync(listFile))
-    return;
+  if (!fs.existsSync(listFile)) return;
 
   try {
     const contents = fs.readFileSync(listFile, { encoding: 'utf8' });
-    const targetPlugins = contents.split('\n').filter((val) => (val && val.trim().length > 0));
+    const targetPlugins = contents
+      .split('\n')
+      .filter((val) => val && val.trim().length > 0);
 
     for (const packageName of targetPlugins) {
       const packageDir = path.join(conf.MAIN_PLUGIN_REPO, packageName);
@@ -37,8 +38,7 @@ function removeUninstalledPlugins(listFile, removeData) {
 
 function* movePreinstalledPlugins() {
   const preinstallDir = conf.__PLUGIN_PREINSTALL_DIR;
-  if (!fs.existsSync(preinstallDir))
-    return;
+  if (!fs.existsSync(preinstallDir)) return;
 
   const packageDirs = fs.readdirSync(preinstallDir);
   const repoDir = conf.MAIN_PLUGIN_REPO;

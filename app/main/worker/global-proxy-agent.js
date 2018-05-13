@@ -35,8 +35,7 @@ function patchRequest(moduleInstance, orgReq, proxyAgent) {
     } else {
       _opts = lo_assign({}, opts);
     }
-    if (_opts.agent === undefined)
-      _opts.agent = proxyAgent;
+    if (_opts.agent === undefined) _opts.agent = proxyAgent;
     return orgReq.call(moduleInstance, _opts, cb);
   };
 }
@@ -46,8 +45,7 @@ function patchAgents() {
   https.request = _httpsRequest;
 
   const proxyPref = _prefObj.get('proxy');
-  if (!proxyPref.useProxy)
-    return;
+  if (!proxyPref.useProxy) return;
 
   logger.debug('patchAgents:');
   logger.debug(proxyPref);

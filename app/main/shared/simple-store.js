@@ -21,6 +21,6 @@ module.exports = class SimpleStore {
     this.localStorage.setItemSync(id, obj);
   }
   has(id) {
-    return (this.get(id) !== undefined);
+    return this.get(id) !== undefined;
   }
 };

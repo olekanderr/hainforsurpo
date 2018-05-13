@@ -23,7 +23,16 @@ const Ticket = require('./ticket');
 const searchTicket = new Ticket();
 const previewTicket = new Ticket();
 
-import { TextField, Avatar, SelectableContainerEnhance, List, ListItem, Subheader, FontIcon, IconButton } from 'material-ui';
+import {
+  TextField,
+  Avatar,
+  SelectableContainerEnhance,
+  List,
+  ListItem,
+  Subheader,
+  FontIcon,
+  IconButton
+} from 'material-ui';
 import MuiThemeProvider from 'material-ui/lib/MuiThemeProvider';
 import getMuiTheme from 'material-ui/lib/styles/getMuiTheme';
 import { Notification } from 'react-notification';
@@ -56,8 +65,11 @@ class AppContainer extends React.Component {
   }
 
   processToast() {
-    if (this.toastQueue.length <= 0 ||
-        this.state.toastOpen || !remote.getCurrentWindow().isVisible()) {
+    if (
+      this.toastQueue.length <= 0 ||
+      this.state.toastOpen ||
+      !remote.getCurrentWindow().isVisible()
+    ) {
       return;
     }
     const contents = this.toastQueue.shift();
@@ -99,9 +111,13 @@ class AppContainer extends React.Component {
     });
     rpc.define('requestAddResults', (__payload) => {
       const { ticket, type, payload } = __payload;
-      console.log('app.jsx -> rpc(requestAddResults), ticket=%s, type=%s, payload=%o', ticket, type, payload);
-      if (searchTicket.current !== ticket)
-        return;
+      console.log(
+        'app.jsx -> rpc(requestAddResults), ticket=%s, type=%s, payload=%o',
+        ticket,
+        type,
+        payload
+      );
+      if (searchTicket.current !== ticket) return;
 
       let results = this.state.results;
       let selectionIndex = this.state.selectionIndex;
@@ -116,12 +132,11 @@ class AppContainer extends React.Component {
         results = lo_orderBy(results, ['score'], ['desc']);
 
         // Grouping results
-        const groups = lo_uniq(lo_map(results, x => x.group));
+        const groups = lo_uniq(lo_map(results, (x) => x.group));
         const groupedResults = [];
         for (const x of groups) {
           for (const k of results) {
-            if (k.group !== x)
-              continue;
+            if (k.group !== x) continue;
             groupedResults.push(k);
           }
         }
@@ -129,7 +144,7 @@ class AppContainer extends React.Component {
       } else if (type === 'remove') {
         const _id = payload.id;
         results = lo_reject(results, (x) => {
-          return (x.id === _id && x.context === payload.context);
+          return x.id === _id && x.context === payload.context;
         });
       }
 
@@ -137,10 +152,8 @@ class AppContainer extends React.Component {
     });
     rpc.define('requestRenderPreview', (payload) => {
       const { ticket, html } = payload;
-      if (previewTicket.current !== ticket)
-        return;
-      if (this.state.previewHtml === html)
-        return;
+      if (previewTicket.current !== ticket) return;
+      if (this.state.previewHtml === html) return;
       this.setState({ previewHtml: html });
     });
     setInterval(this.processToast.bind(this), 200);
@@ -173,7 +186,9 @@ class AppContainer extends React.Component {
 
       const rect = target_dom.getBoundingClientRect();
       const parentRect = listContainer_dom.getBoundingClientRect();
-      const isOutside = ((rect.bottom - rect.height) <= parentRect.top || (rect.top + rect.height) >= parentRect.bottom);
+      const isOutside =
+        rect.bottom - rect.height <= parentRect.top ||
+        rect.top + rect.height >= parentRect.bottom;
 
       if (isOutside) {
         $(listContainer_dom).scrollTo(target_dom);
@@ -190,15 +205,13 @@ class AppContainer extends React.Component {
     }, SEND_INTERVAL);
     clearTimeout(this.lastClearTimer);
     this.lastClearTimer = setTimeout(() => {
-      if (this.lastResultTicket === ticket)
-        return;
+      if (this.lastResultTicket === ticket) return;
       this.setState({ results: [], selectionIndex: 0 });
     }, CLEAR_INTERVAL);
   }
 
   execute(item, evt) {
-    if (item === undefined)
-      return;
+    if (item === undefined) return;
     const e = evt.nativeEvent;
     const params = {
       context: item.context,
@@ -210,9 +223,10 @@ class AppContainer extends React.Component {
           ctrlKey: evt.nativeEvent.ctrlKey,
           shiftKey: evt.nativeEvent.shiftKey,
           metaKey: evt.nativeEvent.metaKey,
-          modifierBitfield: (e.ctrlKey) + (e.altKey << 1) + (e.shiftKey << 2) + (e.metaKey << 3),
-        },
-      },
+          modifierBitfield:
+            e.ctrlKey + (e.altKey << 1) + (e.shiftKey << 2) + (e.metaKey << 3)
+        }
+      }
     };
     rpc.call('execute', params);
   }
@@ -230,8 +244,7 @@ class AppContainer extends React.Component {
     const payload = selectedResult.payload;
     const previewHash = `${context}.${id}`;
 
-    if (previewHash === this._renderedPreviewHash)
-      return;
+    if (previewHash === this._renderedPreviewHash) return;
     this._renderedPreviewHash = previewHash;
 
     const ticket = previewTicket.newTicket();
@@ -245,8 +258,7 @@ class AppContainer extends React.Component {
     let newSelectionIndex = this.state.selectionIndex + selectionDelta;
     newSelectionIndex = lo_clamp(newSelectionIndex, 0, upperSelectionIndex);
 
-    if (this.state.selectionIndex === newSelectionIndex)
-      return;
+    if (this.state.selectionIndex === newSelectionIndex) return;
 
     this.setState({ selectionIndex: newSelectionIndex });
     this.scrollTo(newSelectionIndex);
@@ -262,10 +274,12 @@ class AppContainer extends React.Component {
   }
 
   handleEnter(evt) {
-    if(this.lastResultTicket !== searchTicket.current) {
+    if (this.lastResultTicket !== searchTicket.current) {
       // For some reason, evt being passed along is invalid, creating a copy of it passes along just fine, unusual but necessary
-      const e = Object.setPrototypeOf(Object.assign({}, evt),
-        Object.getPrototypeOf(evt));
+      const e = Object.setPrototypeOf(
+        Object.assign({}, evt),
+        Object.getPrototypeOf(evt)
+      );
       setTimeout(() => {
         this.handleEnter(e);
       }, 100);
@@ -280,8 +294,7 @@ class AppContainer extends React.Component {
     const results = this.state.results;
     const selectionIndex = this.state.selectionIndex;
     const item = results[selectionIndex];
-    if (item && item.redirect)
-      this.setQuery(item.redirect);
+    if (item && item.redirect) this.setQuery(item.redirect);
   }
 
   handleKeyDown(evt) {
@@ -354,17 +367,22 @@ class AppContainer extends React.Component {
       return null;
     }
     const btnConfig = lo_assign({}, defaultConfig, result.button);
-    const fontIcon = <FontIcon
-      className={ btnConfig.className }
-      onClick={ this.handleRightButtonClick.bind(this, result) }
-      color={ btnConfig.color }
-      hoverColor={ btnConfig.hoverColor }>
-      </FontIcon>;
-    return <IconButton
-      children={ fontIcon }
-      tooltip={ btnConfig.tooltip }
-      tooltipPosition="top-left"
-      style={{ fontSize: 20 }} />;
+    const fontIcon = (
+      <FontIcon
+        className={btnConfig.className}
+        onClick={this.handleRightButtonClick.bind(this, result)}
+        color={btnConfig.color}
+        hoverColor={btnConfig.hoverColor}
+      />
+    );
+    return (
+      <IconButton
+        children={fontIcon}
+        tooltip={btnConfig.tooltip}
+        tooltipPosition="top-left"
+        style={{ fontSize: 20 }}
+      />
+    );
   }
 
   handleRightButtonClick(result, evt) {
@@ -376,8 +394,7 @@ class AppContainer extends React.Component {
   }
 
   parseIconUrl(iconUrl) {
-    if (!lo_isString(iconUrl))
-      return null;
+    if (!lo_isString(iconUrl)) return null;
     if (iconUrl.startsWith('#')) {
       const iconClass = iconUrl.substring(1);
       return <Avatar key="icon" icon={<FontIcon className={iconClass} />} />;
@@ -391,7 +408,8 @@ class AppContainer extends React.Component {
     const selectedResult = results[selectionIndex];
 
     const list = [];
-    const tabIndicator = '<kbd style=\'font-size: 7pt; margin-left: 5px; opacity: 0.8\'>tab</kbd>';
+    const tabIndicator =
+      "<kbd style='font-size: 7pt; margin-left: 5px; opacity: 0.8'>tab</kbd>";
     let lastGroup = null;
     for (let i = 0; i < results.length; ++i) {
       const result = results[i];
@@ -400,17 +418,23 @@ class AppContainer extends React.Component {
 
       let title = textUtil.extractText(result.title);
       const titleStyle = textUtil.extractTextStyle(result.title);
-      if (result.redirect)
-        title += tabIndicator;
+      if (result.redirect) title += tabIndicator;
 
       const desc = textUtil.extractText(result.desc);
-      const descStyle = textUtil.extractTextStyle(result.desc, { fontSize: 13 });
+      const descStyle = textUtil.extractTextStyle(result.desc, {
+        fontSize: 13
+      });
 
       if (result.group !== lastGroup) {
         const headerId = `header.${i}`;
         list.push(
           <div key={headerId} ref={headerId}>
-            <Subheader key="header" style={{ lineHeight: '32px', fontSize: 13 }}>{ result.group }</Subheader>
+            <Subheader
+              key="header"
+              style={{ lineHeight: '32px', fontSize: 13 }}
+            >
+              {result.group}
+            </Subheader>
           </div>
         );
         lastGroup = result.group;
@@ -423,13 +447,20 @@ class AppContainer extends React.Component {
           value={i}
           onKeyboardFocus={this.handleKeyboardFocus.bind(this)}
           style={{ fontSize: 15, lineHeight: '13px' }}
-          primaryText={<div style={titleStyle} dangerouslySetInnerHTML={{ __html: title }} />}
-          secondaryText={<div style={descStyle} dangerouslySetInnerHTML={{ __html: desc }} />}
+          primaryText={
+            <div
+              style={titleStyle}
+              dangerouslySetInnerHTML={{ __html: title }}
+            />
+          }
+          secondaryText={
+            <div style={descStyle} dangerouslySetInnerHTML={{ __html: desc }} />
+          }
           onClick={this.handleItemClick.bind(this, i)}
           onKeyDown={this.handleKeyDown.bind(this)}
           leftAvatar={avatar}
           rightIconButton={rightIcon}
-          />
+        />
       );
     }
 
@@ -439,69 +470,113 @@ class AppContainer extends React.Component {
       const _text = isLoading ? 'Loading' : 'Sorry, No Results';
       const _icon = isLoading ? 'fa fa-spinner fa-spin' : 'fa fa-heart';
       list.push(
-        <ListItem primaryText={_text}
-                  secondaryText="It may take some time to show results"
-                  leftAvatar={<Avatar icon={<FontIcon className={_icon} />} />} />
+        <ListItem
+          primaryText={_text}
+          secondaryText="It may take some time to show results"
+          leftAvatar={<Avatar icon={<FontIcon className={_icon} />} />}
+        />
       );
     }
 
-    const containerStyles = { overflowX: 'hidden', transition: 'width 0.35s cubic-bezier(0.23, 1, 0.32, 1)',
-                              overflowY: 'auto', width: '100%', height: '440px' };
+    const containerStyles = {
+      overflowX: 'hidden',
+      transition: 'width 0.35s cubic-bezier(0.23, 1, 0.32, 1)',
+      overflowY: 'auto',
+      width: '100%',
+      height: '440px'
+    };
     let previewBox = null;
     if (selectedResult && selectedResult.preview) {
-      const previewStyle = { float: 'left', boxSizing: 'border-box',
-                             overflowX: 'hidden', overflowY: 'hidden',
-                             padding: '10px', paddingRight: '0px', width: '470px', height: '440px' };
+      const previewStyle = {
+        float: 'left',
+        boxSizing: 'border-box',
+        overflowX: 'hidden',
+        overflowY: 'hidden',
+        padding: '10px',
+        paddingRight: '0px',
+        width: '470px',
+        height: '440px'
+      };
       containerStyles.float = 'left';
       containerStyles.width = '300px';
 
       previewBox = (
         <div style={previewStyle}>
-          <HTMLFrame html={this.state.previewHtml}
-                     sandbox="allow-forms allow-popups allow-same-origin allow-scripts"
-                     style={{ width: '100%', height: '100%', border: '0' }} />
+          <HTMLFrame
+            html={this.state.previewHtml}
+            sandbox="allow-forms allow-popups allow-same-origin allow-scripts"
+            style={{ width: '100%', height: '100%', border: '0' }}
+          />
         </div>
       );
     }
 
     return (
       <MuiThemeProvider muiTheme={muiTheme}>
-      <div>
-        <div key="queryWrapper" style={{ position: 'fixed', 'zIndex': 1000, top: 0, width: '776px' }}>
-          <div style={{ marginTop: '7px', marginBottom: '-8px', color: '#a7a7a7', fontSize: '0.7em' }}>
-            <table style={{ width: '100%' }}>
-              <tr>
-                <td width="50%">Hain</td>
-                <td width="50%" style={{ textAlign: 'right' }}>
-                <kbd>↓</kbd> <kbd>↑</kbd> to navigate, <kbd>tab</kbd> to expand(redirect), <kbd>enter</kbd> to execute
-                </td>
-              </tr>
-            </table>
-          </div>
-          <TextField
-            key="query"
-            ref="query"
-            fullWidth={true}
-            value={this.state.query}
-            onKeyDown={this.handleKeyDown.bind(this)}
-            onChange={this.handleChange.bind(this)}
+        <div>
+          <div
+            key="queryWrapper"
+            style={{ position: 'fixed', zIndex: 1000, top: 0, width: '776px' }}
+          >
+            <div
+              style={{
+                marginTop: '7px',
+                marginBottom: '-8px',
+                color: '#a7a7a7',
+                fontSize: '0.7em'
+              }}
+            >
+              <table style={{ width: '100%' }}>
+                <tr>
+                  <td width="50%">Hain</td>
+                  <td width="50%" style={{ textAlign: 'right' }}>
+                    <kbd>↓</kbd> <kbd>↑</kbd> to navigate, <kbd>tab</kbd> to
+                    expand(redirect), <kbd>enter</kbd> to execute
+                  </td>
+                </tr>
+              </table>
+            </div>
+            <TextField
+              key="query"
+              ref="query"
+              fullWidth={true}
+              value={this.state.query}
+              onKeyDown={this.handleKeyDown.bind(this)}
+              onChange={this.handleChange.bind(this)}
             />
-        </div>
-        <div key="containerWrapper">
-          <div key="container" ref="listContainer" style={containerStyles}>
-            <SelectableList key="list" style={{ paddingTop: '0px', paddingBottom: '0px' }}
-                            valueLink={{ value: selectionIndex, requestChange: this.handleUpdateSelectionIndex.bind(this) }}>
-              {list}
-            </SelectableList>
           </div>
-          {previewBox}
+          <div key="containerWrapper">
+            <div key="container" ref="listContainer" style={containerStyles}>
+              <SelectableList
+                key="list"
+                style={{ paddingTop: '0px', paddingBottom: '0px' }}
+                valueLink={{
+                  value: selectionIndex,
+                  requestChange: this.handleUpdateSelectionIndex.bind(this)
+                }}
+              >
+                {list}
+              </SelectableList>
+            </div>
+            {previewBox}
+          </div>
+          <Notification
+            key="notification"
+            isActive={this.state.toastOpen}
+            barStyle={{ maxWidth: '600px', wordWrap: 'break-word' }}
+            message={
+              <div
+                dangerouslySetInnerHTML={{ __html: this.state.toastMessage }}
+              />
+            }
+          />
         </div>
-        <Notification key="notification" isActive={this.state.toastOpen} barStyle={{ maxWidth: '600px', wordWrap: 'break-word' }}
-                      message={<div dangerouslySetInnerHTML={{ __html: this.state.toastMessage }} />} />
-      </div>
       </MuiThemeProvider>
     );
   }
 }
 
-const appContainer = ReactDOM.render(<AppContainer />, document.getElementById('app'));
+const appContainer = ReactDOM.render(
+  <AppContainer />,
+  document.getElementById('app')
+);

@@ -47,7 +47,7 @@ function* resolvePackageVersion(packageName, versionRange) {
   }
 
   let selectedVersion = null;
-  const pkgVersions = data['versions']; // object
+  const pkgVersions = data.versions; // object
   for (const pkgVersion in pkgVersions) {
     if (!semver.satisfies(pkgVersion, desired)) {
       continue;
@@ -72,7 +72,12 @@ function* resolvePackageData(packageName, versionRange) {
   return data;
 }
 
-function* downloadAndExtractPackage(packageName, versionRange, destDir, tempDir) {
+function* downloadAndExtractPackage(
+  packageName,
+  versionRange,
+  destDir,
+  tempDir
+) {
   const data = yield* resolvePackageData(packageName, versionRange);
   const distUrl = data.dist.tarball;
 
@@ -95,9 +100,14 @@ function* installPackage(packageName, versionRange, destDir, tempDir) {
   yield fileUtil.ensureDir(incompleteDir);
 
   try {
-    yield* downloadAndExtractPackage(packageName, versionRange, incompleteDir, tempDir);
+    yield* downloadAndExtractPackage(
+      packageName,
+      versionRange,
+      incompleteDir,
+      tempDir
+    );
 
-    if (data.dependencies && (lo_size(data.dependencies) > 0)) {
+    if (data.dependencies && lo_size(data.dependencies) > 0) {
       const modulePath = path.join(incompleteDir, 'node_modules');
       yield fileUtil.ensureDir(modulePath);
 

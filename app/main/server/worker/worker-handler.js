@@ -12,9 +12,15 @@ module.exports = class WorkerHandler {
     const rpc = this.workerClient.rpc;
     rpc.define('onError', this.handleOnError.bind(this));
     rpc.define('callApi', this.handleCallApi.bind(this));
-    rpc.define('notifyPluginsLoaded', this.handleNotifyPluginsLoaded.bind(this));
+    rpc.define(
+      'notifyPluginsLoaded',
+      this.handleNotifyPluginsLoaded.bind(this)
+    );
     rpc.define('requestAddResults', this.handleRequestAddResults.bind(this));
-    rpc.define('requestRenderPreview', this.handleRequestRenderPreview.bind(this));
+    rpc.define(
+      'requestRenderPreview',
+      this.handleRequestRenderPreview.bind(this)
+    );
   }
   handleOnError(payload) {
     logger.error(`Unhandled Plugin Error: ${payload}`);

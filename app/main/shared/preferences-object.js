@@ -39,15 +39,18 @@ class PreferencesObject extends EventEmitter {
     const defaults = schemaDefaults(this.schema);
     if (this.store) {
       const loadedData = this.store.get(this.id);
-      const decodedData = jsonSchemaEncoder.decode(loadedData, this.schema, this.encoderOptions);
+      const decodedData = jsonSchemaEncoder.decode(
+        loadedData,
+        this.schema,
+        this.encoderOptions
+      );
       this.model = lo_assign({}, defaults, decodedData);
     } else {
       this.model = lo_assign({}, defaults);
     }
   }
   get(path) {
-    if (path === undefined)
-      return this.model;
+    if (path === undefined) return this.model;
     return lo_get(this.model, path);
   }
   reset() {
@@ -56,8 +59,7 @@ class PreferencesObject extends EventEmitter {
     return defaults;
   }
   update(model) {
-    if (!this.verify(model))
-      return;
+    if (!this.verify(model)) return;
     this.model = model;
     this._isDirty = true;
   }
@@ -86,10 +88,13 @@ class PreferencesObject extends EventEmitter {
     };
   }
   commit() {
-    if (this._isDirty === false)
-      return;
+    if (this._isDirty === false) return;
     if (this.store) {
-      const encodedData = jsonSchemaEncoder.encode(this.model, this.schema, this.encoderOptions);
+      const encodedData = jsonSchemaEncoder.encode(
+        this.model,
+        this.schema,
+        this.encoderOptions
+      );
       this.store.set(this.id, encodedData);
     }
     const copy = lo_assign({}, this.model);

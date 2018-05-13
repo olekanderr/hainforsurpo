@@ -16,16 +16,14 @@ class ItemPriorityManager {
     this.localStorage.setItem('itemNumberOfUses', this.itemNumberOfUses);
   }
   applyPriorityToScore(itemId, score) {
-    if (!lo_isString(itemId) || itemId.length <= 0)
-      return score;
+    if (!lo_isString(itemId) || itemId.length <= 0) return score;
 
     const itemNumberOfUse = this.itemNumberOfUses[itemId] || 0;
-    const ratio = Math.min(MAX_RATIO, (1 + Math.log(1 + itemNumberOfUse)));
+    const ratio = Math.min(MAX_RATIO, 1 + Math.log(1 + itemNumberOfUse));
     return score * ratio;
   }
   markItemHasExecuted(itemId) {
-    if (!lo_isString(itemId) || itemId.length <= 0)
-      return;
+    if (!lo_isString(itemId) || itemId.length <= 0) return;
 
     const oldNumberOfUse = this.itemNumberOfUses[itemId] || 0;
     this.itemNumberOfUses[itemId] = oldNumberOfUse + 1;

@@ -16,16 +16,14 @@ module.exports = (context) => {
   function startup() {
     indexer.set('math', (query) => {
       const answer = calculate(query, false);
-      if (!answer)
-        return;
+      if (!answer) return;
       return makeResultItem('primaryText', query, answer);
     });
   }
 
   function search(query, res) {
     const answer = calculate(query, true);
-    if (!answer)
-      return;
+    if (!answer) return;
     res.add(makeResultItem('title', query, answer));
   }
 
@@ -40,13 +38,16 @@ module.exports = (context) => {
   function calculate(query, showRedundantResult) {
     try {
       const ans = math.eval(query);
-      if (lo_isNumber(ans) || lo_isString(ans) || (lo_isObject(ans) && lo_has(ans, 'value'))) {
+      if (
+        lo_isNumber(ans) ||
+        lo_isString(ans) ||
+        (lo_isObject(ans) && lo_has(ans, 'value'))
+      ) {
         const ansString = Number.parseFloat(ans.toPrecision(10)).toString();
-        const isResultMeaningful = (ansString.trim() !== query.trim());
-        if (isResultMeaningful || showRedundantResult)
-          return ansString;
+        const isResultMeaningful = ansString.trim() !== query.trim();
+        if (isResultMeaningful || showRedundantResult) return ansString;
       }
-    } catch (e) { }
+    } catch (e) {}
   }
 
   function execute(id, payload, extra) {

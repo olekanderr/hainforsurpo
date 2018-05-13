@@ -3,9 +3,7 @@
 const util = require('../util');
 
 describe('util.js', () => {
-
   describe('hasCompatibleAPIVersions', () => {
-
     it('should return true if keywords has a compatible api version', () => {
       const apiVersions = ['hain0', 'hain-0.1.0'];
       const keywords = ['hain0'];
@@ -19,7 +17,5 @@ describe('util.js', () => {
       const isCompatible = util.hasCompatibleAPIKeywords(apiVersions, keywords);
       expect(isCompatible).toBe(false);
     });
-
   });
-
 });

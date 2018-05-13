@@ -52,29 +52,34 @@ module.exports = (workerContext) => {
     matchutil: matchUtil
   };
 
-	function createLogger(pluginId) {
-		let prefix = `[${pluginId.replace(/hain-(plugin-)?/, '')}] `;
-		return {
-			log: (...args) => {
-				if(typeof args[0] === 'string')
-					args[0] = prefix + args[0];
-				else
-					args.unshift(prefix);
+  function createLogger(pluginId) {
+    const prefix = `[${pluginId.replace(/hain-(plugin-)?/, '')}] `;
+    return {
+      log: (...args) => {
+        if (typeof args[0] === 'string') args[0] = prefix + args[0];
+        else args.unshift(prefix);
 
-				workerContext.logger.log(...args);
-			}
-		};
-	}
+        workerContext.logger.log(...args);
+      }
+    };
+  }
 
-	function generatePluginContext(pluginId, pluginConfig) {
+  function generatePluginContext(pluginId, pluginConfig) {
     const localContext = {
       localStorage: storageManager.createLocalStorage(pluginId),
-      indexer: indexerManager.createIndexerForPlugin(pluginId, pluginConfig.icon),
-			logger: createLogger(pluginId),
+      indexer: indexerManager.createIndexerForPlugin(
+        pluginId,
+        pluginConfig.icon
+      ),
+      logger: createLogger(pluginId)
     };
-    const hasPreferences = (pluginConfig.prefSchema !== null);
+    const hasPreferences = pluginConfig.prefSchema !== null;
     if (hasPreferences) {
-      const preferences = new PreferencesObject(prefStore, pluginId, pluginConfig.prefSchema);
+      const preferences = new PreferencesObject(
+        prefStore,
+        pluginId,
+        pluginConfig.prefSchema
+      );
       localContext.preferences = preferences;
       prefObjs[pluginId] = preferences;
     }
@@ -89,7 +94,10 @@ module.exports = (workerContext) => {
     const ret = pluginLoader.loadPlugins(generatePluginContext);
     plugins = ret.plugins;
     pluginConfigs = ret.pluginConfigs;
-    pluginPrefIds = lo_reject(lo_keys(pluginConfigs), x => pluginConfigs[x].prefSchema === null);
+    pluginPrefIds = lo_reject(
+      lo_keys(pluginConfigs),
+      (x) => pluginConfigs[x].prefSchema === null
+    );
 
     callPluginsStartup();
   }
@@ -113,22 +121,25 @@ module.exports = (workerContext) => {
   }
 
   function setupIndexerManager() {
-    indexerManager = new IndexerManager(storageManager.createLocalStorage('indexer'));
+    indexerManager = new IndexerManager(
+      storageManager.createLocalStorage('indexer')
+    );
     indexerManager.setExecuteFunction(executeOnPlugin);
   }
 
   function searchAll(query, resFunc) {
-    const noQuery = (query.length <= 0);
+    const noQuery = query.length <= 0;
     if (noQuery) {
-      resFunc({ type: 'add', payload: helpUtil.createIntroHelp(pluginConfigs) });
+      resFunc({
+        type: 'add',
+        payload: helpUtil.createIntroHelp(pluginConfigs)
+      });
       return;
     }
 
     const isPluginQuery = PLUGIN_QUERY_PREFIX_REGEX.test(query);
-    if (isPluginQuery)
-      searchPlugins(query, resFunc);
-    else
-      searchIndexer(query, resFunc);
+    if (isPluginQuery) searchPlugins(query, resFunc);
+    else searchIndexer(query, resFunc);
   }
 
   function searchPlugins(query, resFunc) {
@@ -137,26 +148,28 @@ module.exports = (workerContext) => {
       const pluginId = prop;
       const plugin = plugins[pluginId];
       const pluginConfig = pluginConfigs[pluginId];
-      const hasPrefix = (lo_isString(pluginConfig.prefix) && pluginConfig.prefix.length > 0);
-      if (!hasPrefix)
-        continue;
+      const hasPrefix =
+        lo_isString(pluginConfig.prefix) && pluginConfig.prefix.length > 0;
+      if (!hasPrefix) continue;
 
       const query_lower = query.toLowerCase();
       const prefix_lower = pluginConfig.prefix.toLowerCase();
 
       if (query_lower.startsWith(prefix_lower) === false) {
         const prefixHelp = helpUtil.makePrefixHelp(pluginConfig, query);
-        if (prefixHelp && prefixHelp.length > 0)
-          sysResults.push(...prefixHelp);
+        if (prefixHelp && prefixHelp.length > 0) sysResults.push(...prefixHelp);
         continue;
       }
 
       const noSearchFunc = !plugin.search;
-      if (noSearchFunc)
-        continue;
+      if (noSearchFunc) continue;
 
       const localQuery = query.substring(prefix_lower.length);
-      const pluginResponse = responseUtil.createResponseObject(resFunc, pluginId, pluginConfig);
+      const pluginResponse = responseUtil.createResponseObject(
+        resFunc,
+        pluginId,
+        pluginConfig
+      );
       try {
         plugin.search(localQuery, pluginResponse);
       } catch (e) {
@@ -164,8 +177,7 @@ module.exports = (workerContext) => {
       }
     }
     // Send System-generated Results
-    if (sysResults.length > 0)
-      resFunc({ type: 'add', payload: sysResults });
+    if (sysResults.length > 0) resFunc({ type: 'add', payload: sysResults });
   }
 
   function searchIndexer(query, resFunc) {
@@ -173,7 +185,7 @@ module.exports = (workerContext) => {
   }
 
   function execute(context, id, payload, extra) {
-    const isRedirect = (!context && lo_isString(payload));
+    const isRedirect = !context && lo_isString(payload);
     if (isRedirect) {
       workerContext.app.setQuery(payload);
       return;
@@ -191,8 +203,7 @@ module.exports = (workerContext) => {
 
   function executeOnPlugin(pluginId, id, payload, extra) {
     const executeFunc = plugins[pluginId].execute;
-    if (executeFunc === undefined)
-      return;
+    if (executeFunc === undefined) return;
     try {
       executeFunc(id, payload, extra);
     } catch (e) {
@@ -201,11 +212,9 @@ module.exports = (workerContext) => {
   }
 
   function renderPreview(context, id, payload, render) {
-    if (plugins[context] === undefined)
-      return;
+    if (plugins[context] === undefined) return;
     const renderPreviewFunc = plugins[context].renderPreview;
-    if (renderPreviewFunc === undefined)
-      return;
+    if (renderPreviewFunc === undefined) return;
     try {
       renderPreviewFunc(id, payload, render);
     } catch (e) {
@@ -214,11 +223,9 @@ module.exports = (workerContext) => {
   }
 
   function buttonAction(context, id, payload) {
-    if (plugins[context] === undefined)
-      return;
+    if (plugins[context] === undefined) return;
     const buttonActionFunc = plugins[context].buttonAction;
-    if (buttonActionFunc === undefined)
-      return;
+    if (buttonActionFunc === undefined) return;
     try {
       buttonActionFunc(id, payload);
     } catch (e) {

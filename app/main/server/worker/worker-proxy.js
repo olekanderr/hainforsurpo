@@ -14,7 +14,12 @@ module.exports = class WorkerProxy {
     this.workerClient.rpc.call('execute', { context, id, payload, extra });
   }
   renderPreview(ticket, context, id, payload) {
-    this.workerClient.rpc.call('renderPreview', { ticket, context, id, payload });
+    this.workerClient.rpc.call('renderPreview', {
+      ticket,
+      context,
+      id,
+      payload
+    });
   }
   buttonAction(context, id, payload) {
     this.workerClient.rpc.call('buttonAction', { context, id, payload });

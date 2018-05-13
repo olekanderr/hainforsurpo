@@ -12,9 +12,12 @@ const rpc = require('./rpc');
 // Create a local copy of app-pref object
 const appPrefCopy = new PreferencesObject(null, 'hain', {});
 
-const workerContext = lo_assign({
-  globalPreferences: appPrefCopy
-}, apiProxy);
+const workerContext = lo_assign(
+  {
+    globalPreferences: appPrefCopy
+  },
+  apiProxy
+);
 
 let plugins = null;
 
@@ -24,7 +27,7 @@ function handleExceptions() {
 
 rpc.define('initialize', (payload) => {
   const { appPref } = payload;
-  return co(function* () {
+  return co(function*() {
     handleExceptions();
     appPrefCopy.update(appPref);
     globalProxyAgent.initialize(appPrefCopy);

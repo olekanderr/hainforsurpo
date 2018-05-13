@@ -27,7 +27,10 @@ function createSanitizeSearchResultFunc(pluginId, pluginConfig) {
 }
 
 function createResponseObject(resFunc, pluginId, pluginConfig) {
-  const sanitizeSearchResult = createSanitizeSearchResultFunc(pluginId, pluginConfig);
+  const sanitizeSearchResult = createSanitizeSearchResultFunc(
+    pluginId,
+    pluginConfig
+  );
   return {
     add: (result) => {
       let searchResults = [];
@@ -38,8 +41,7 @@ function createResponseObject(resFunc, pluginId, pluginConfig) {
       } else {
         throw new Error('argument must be an array or an object');
       }
-      if (searchResults.length <= 0)
-        return;
+      if (searchResults.length <= 0) return;
       resFunc({
         type: 'add',
         payload: searchResults

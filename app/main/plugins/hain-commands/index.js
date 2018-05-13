@@ -5,7 +5,8 @@ const lo_assign = require('lodash.assign');
 const pkg = require('../../../package.json');
 const checkForUpdate = require('./check-update');
 
-const CONTRIBUTORS_URL = 'https://github.com/hainproject/hain/graphs/contributors';
+const CONTRIBUTORS_URL =
+  'https://github.com/hainproject/hain/graphs/contributors';
 const NAME = 'hain-commands';
 
 const commands = [
@@ -44,26 +45,34 @@ module.exports = (context) => {
   const indexer = context.indexer;
 
   function startup() {
-    checkForUpdate().then(ret => {
+    checkForUpdate().then((ret) => {
       if (ret.version !== pkg.version) {
-        toast.enqueue('New version available! Please enter `/hain update`.', 2500);
+        toast.enqueue(
+          'New version available! Please enter `/hain update`.',
+          2500
+        );
       }
     });
     registerIndexerShortcuts();
   }
 
   function registerIndexerShortcuts() {
-    indexer.set('shortcuts', commands.map((x) => lo_assign(x, { secondaryText: x.redirect || NAME, group: 'Hain Commands' })));
+    indexer.set(
+      'shortcuts',
+      commands.map((x) =>
+        lo_assign(x, {
+          secondaryText: x.redirect || NAME,
+          group: 'Hain Commands'
+        })
+      )
+    );
   }
 
   function search(query, res) {
     const query_lower = query.trim().toLowerCase();
-    if (query_lower === 'about')
-      return handleAbout(res);
-    else if (query_lower === 'update')
-      return handleUpdate(res);
-    else
-      return handleShowHelp(res);
+    if (query_lower === 'about') return handleAbout(res);
+    else if (query_lower === 'update') return handleUpdate(res);
+    return handleShowHelp(res);
   }
 
   function handleAbout(res) {
@@ -81,74 +90,78 @@ module.exports = (context) => {
       icon: '#fa fa-spinner fa-spin',
       desc: NAME
     });
-    checkForUpdate().then(ret => {
-      res.remove('__temp__');
-      if (ret.version !== pkg.version) {
-        return res.add({
-          id: 'goUpdate',
-          payload: ret.url,
-          title: `There is a new version ${ret.version}`,
-          desc: 'Go download page'
+    checkForUpdate().then(
+      (ret) => {
+        res.remove('__temp__');
+        if (ret.version !== pkg.version) {
+          return res.add({
+            id: 'goUpdate',
+            payload: ret.url,
+            title: `There is a new version ${ret.version}`,
+            desc: 'Go download page'
+          });
+        }
+        res.add({
+          title: 'There is no update',
+          desc: NAME
+        });
+      },
+      () => {
+        res.remove('__temp__');
+        res.add({
+          title: 'Oops! Hain was unable to check for an update.',
+          desc: NAME
         });
       }
-      res.add({
-        title: 'There is no update',
-        desc: NAME
-      });
-    }, () => {
-      res.remove('__temp__');
-      res.add({
-        title: 'Oops! Hain was unable to check for an update.',
-        desc: NAME
-      });
-    });
+    );
   }
 
   function handleShowHelp(res) {
-    res.add(commands.map((x) => {
-      return {
-        id: x.id,
-        title: x.primaryText,
-        desc: x.secondaryText || NAME,
-        redirect: x.redirect
-      };
-    }));
+    res.add(
+      commands.map((x) => {
+        return {
+          id: x.id,
+          title: x.primaryText,
+          desc: x.secondaryText || NAME,
+          redirect: x.redirect
+        };
+      })
+    );
   }
 
   function execute(id, payload, extra) {
     const actions = {
-      'redirect_about': () => {
+      redirect_about: () => {
         app.setQuery('/hain about');
       },
-      'redirect_update': () => {
+      redirect_update: () => {
         app.setQuery('/hain update');
       },
-      'reload': () => {
+      reload: () => {
         app.reloadPlugins();
       },
-      'restart': () => {
+      restart: () => {
         toast.enqueue('Hain will be restarted. This will take a few seconds.');
         setTimeout(() => app.restart(), 1000);
         app.setQuery('');
       },
-      'quit': () => app.quit(),
-      'about': () => {
+      quit: () => app.quit(),
+      about: () => {
         shell.openExternal(CONTRIBUTORS_URL);
         app.close(true);
       },
-      'preferences': () => {
+      preferences: () => {
         app.openPreferences();
         app.close(true);
       },
-      'goUpdate': () => {
+      goUpdate: () => {
         shell.openExternal(payload);
         app.close();
       },
-      'redirect': () => app.setQuery(payload)
+      redirect: () => app.setQuery(payload)
     };
     const func = actions[id];
-    if (func !== undefined)
-      func();
+    if (func !== undefined) func();
   }
 
   return { startup, search, execute };

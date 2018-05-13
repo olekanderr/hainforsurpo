@@ -3,9 +3,7 @@
 const defaults = require('../schema-defaults');
 
 describe('schema-defaults.js', () => {
-
   describe('defaults', () => {
-
     it('should return default value if default prop has provided', () => {
       const strVal = 'string value';
       const schema_str = {
@@ -82,7 +80,5 @@ describe('schema-defaults.js', () => {
       };
       expect(defaults(schema)).toEqual(expectedObj);
     });
-
   });
-
 });

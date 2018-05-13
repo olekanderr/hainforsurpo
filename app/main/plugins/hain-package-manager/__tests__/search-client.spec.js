@@ -22,9 +22,7 @@ function makeBackendContentsWith(packages, apiVersion) {
 }
 
 describe('search-client.js', () => {
-
   describe('findCompatiblePackages', () => {
-
     pit('should return compatible packages from the backend', () => {
       const apiVersion = 'hain0';
       const packages = [
@@ -38,29 +36,32 @@ describe('search-client.js', () => {
         }
       ];
 
-      mock_got.mockReturnValueOnce(Promise.resolve({
-        body: {
-          results: makeBackendContentsWith(packages, apiVersion)
-        }
-      }));
+      mock_got.mockReturnValueOnce(
+        Promise.resolve({
+          body: {
+            results: makeBackendContentsWith(packages, apiVersion)
+          }
+        })
+      );
 
-      return searchClient.findCompatiblePackages('fakeBackend', [apiVersion])
-             .then(retPackages => {
-               expect(retPackages).toEqual(packages);
-             });
+      return searchClient
+        .findCompatiblePackages('fakeBackend', [apiVersion])
+        .then((retPackages) => {
+          expect(retPackages).toEqual(packages);
+        });
     });
 
     pit('should reject if `got` has rejected', () => {
       mock_got.mockReturnValueOnce(Promise.resolve(null));
 
-      return searchClient.findCompatiblePackages('fakeBackend', [])
-             .then((ret) => {
-               throw new Error('Promise should not be resolved');
-             }, (err) => {
-               // done
-             });
+      return searchClient.findCompatiblePackages('fakeBackend', []).then(
+        (ret) => {
+          throw new Error('Promise should not be resolved');
+        },
+        (err) => {
+          // done
+        }
+      );
     });
-
   });
-
 });

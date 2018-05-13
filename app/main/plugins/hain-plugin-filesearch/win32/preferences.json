@@ -21,10 +21,7 @@
       "items": {
         "type": "string"
       },
-      "default": [
-        "${SystemRoot}\\System32",
-        "${SystemRoot}"
-      ]
+      "default": ["${SystemRoot}\\System32", "${SystemRoot}"]
     },
     "searchExtensions": {
       "type": "array",
@@ -32,13 +29,7 @@
       "items": {
         "type": "string"
       },
-      "default": [
-        ".appref-ms",
-        ".exe",
-        ".lnk",
-        ".bat",
-        ".url"
-      ]
+      "default": [".appref-ms", ".exe", ".lnk", ".bat", ".url"]
     }
   }
 }

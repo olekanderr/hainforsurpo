@@ -21,22 +21,18 @@ class NumberComponent extends React.Component {
 
   handleChange(evt, val) {
     let _val = val;
-    if (_val.length === 0)
-      _val = '0';
+    if (_val.length === 0) _val = '0';
 
     const incomleteRegEx = /^\d+.?\d*$/;
-    if (!incomleteRegEx.test(_val))
-      return;
+    if (!incomleteRegEx.test(_val)) return;
 
     this.setState({ val: _val });
 
     const completeRegEx = /^\d+(.\d+)?$/;
-    if (!completeRegEx.test(_val))
-      return;
+    if (!completeRegEx.test(_val)) return;
 
     let num = Number(_val);
-    if (isNaN(num))
-      num = 0;
+    if (isNaN(num)) num = 0;
 
     const { onChange, path } = this.props;
     onChange(path, num);
@@ -50,16 +46,20 @@ class NumberComponent extends React.Component {
     const description = utils.wrapDescription(schema.description);
 
     if (title !== undefined) {
-      title = (<h5 style={{ marginBottom: '2px' }}>{title}</h5>);
+      title = <h5 style={{ marginBottom: '2px' }}>{title}</h5>;
     }
 
     return (
       <div>
         {title}
         {description}
-        <TextField name="number" value={val} errorText={error}
-                   fullWidth={true}
-                   onChange={this.handleChange.bind(this)} />
+        <TextField
+          name="number"
+          value={val}
+          errorText={error}
+          fullWidth={true}
+          onChange={this.handleChange.bind(this)}
+        />
       </div>
     );
   }

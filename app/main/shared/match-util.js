@@ -17,14 +17,14 @@ function fuzzyMatchFallback(elem, keyword, testStr, fuzzyScore) {
     score++;
     srcStr = srcStr.substring(0, occurIndex) + srcStr.substring(occurIndex + 1);
   }
-  if (srcStr.length > 0)
-    score /= srcStr.length;
+  if (srcStr.length > 0) score /= srcStr.length;
   score *= 0.05;
   return { elem, matches: [], score, length: srcStr.length };
 }
 
 const MAX_MATCH_LENGTH = 15;
-const MAX_MATCH_SCORE = (MAX_MATCH_LENGTH + MAX_MATCH_LENGTH * MAX_MATCH_LENGTH) * 0.5;
+const MAX_MATCH_SCORE =
+  (MAX_MATCH_LENGTH + MAX_MATCH_LENGTH * MAX_MATCH_LENGTH) * 0.5;
 
 function fuzzyMatch(elem, testStr, keywordGetter) {
   const srcStr = keywordGetter(elem).toLowerCase();
@@ -49,9 +49,14 @@ function fuzzyMatch(elem, testStr, keywordGetter) {
   fuzzyScore = Math.min(MAX_MATCH_SCORE, fuzzyScore);
   fuzzyScore /= MAX_MATCH_SCORE;
 
-  const success = (pattern_i < 0);
+  const success = pattern_i < 0;
   if (success)
-    return { elem, matches: matches.reverse(), score: fuzzyScore, length: srcStr.length };
+    return {
+      elem,
+      matches: matches.reverse(),
+      score: fuzzyScore,
+      length: srcStr.length
+    };
   return fuzzyMatchFallback(elem, srcStr, testStr, fuzzyScore);
 }
 
@@ -78,7 +83,7 @@ function fwdFuzzyMatch(elem, testStr, keywordGetter) {
   fuzzyScore = Math.min(MAX_MATCH_SCORE, fuzzyScore);
   fuzzyScore /= MAX_MATCH_SCORE;
 
-  const success = (pattern_i >= testStr.length);
+  const success = pattern_i >= testStr.length;
   if (success)
     return { elem, matches, score: fuzzyScore, length: srcStr.length };
   return fuzzyMatchFallback(elem, srcStr, testStr, fuzzyScore);
@@ -153,7 +158,7 @@ function makeStringBoldHtml(str, boldIndices) {
   let b_i = 0;
   for (let i = 0; i < str.length; ++i) {
     if (i === boldIndices[b_i]) {
-      p += `<b>${str.charAt(i) }</b>`;
+      p += `<b>${str.charAt(i)}</b>`;
       b_i++;
     } else {
       p += str.charAt(i);

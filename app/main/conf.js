@@ -19,13 +19,11 @@ const DEV_PLUGIN_REPO = path.resolve(`${HAIN_USER_PATH}/devplugins`);
 
 const _apiVersionInfo = pkg._apiVersion;
 const CURRENT_API_VERSION = _apiVersionInfo.currentVersion;
-const COMPATIBLE_API_VERSIONS = [CURRENT_API_VERSION].concat(_apiVersionInfo.compatibleVersions);
+const COMPATIBLE_API_VERSIONS = [CURRENT_API_VERSION].concat(
+  _apiVersionInfo.compatibleVersions
+);
 
-const PLUGIN_REPOS = [
-  INTERNAL_PLUGIN_REPO,
-  MAIN_PLUGIN_REPO,
-  DEV_PLUGIN_REPO
-];
+const PLUGIN_REPOS = [INTERNAL_PLUGIN_REPO, MAIN_PLUGIN_REPO, DEV_PLUGIN_REPO];
 
 module.exports = {
   HAIN_USER_PATH,

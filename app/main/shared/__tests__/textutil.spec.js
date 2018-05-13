@@ -5,7 +5,7 @@ const textUtil = require('../text-util');
 
 describe('text-util.js', () => {
   describe('sanitize', () => {
-    it('shouldn\'t edit properties of textObject excluding `text`', () => {
+    it("shouldn't edit properties of textObject excluding `text`", () => {
       const txtObj = {
         singleLine: true,
         garbage: '*_*',

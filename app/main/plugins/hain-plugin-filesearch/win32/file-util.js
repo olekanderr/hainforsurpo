@@ -44,8 +44,7 @@ function* readdir(dirPath, recursive, matcher) {
     const dir = pendingDirs.shift();
     const realdir = yield _realpath(dir);
 
-    if (scannedDirs[realdir])
-      continue;
+    if (scannedDirs[realdir]) continue;
     scannedDirs[realdir] = true;
 
     try {
@@ -54,13 +53,11 @@ function* readdir(dirPath, recursive, matcher) {
         const filePath = path.join(realdir, file);
         try {
           const stat = yield _stat(filePath);
-          if (stat.isDirectory() && recursive)
-            pendingDirs.push(filePath);
-          if (matcher(filePath, stat))
-            matchedPaths.push(filePath);
-        } catch (e) { }
+          if (stat.isDirectory() && recursive) pendingDirs.push(filePath);
+          if (matcher(filePath, stat)) matchedPaths.push(filePath);
+        } catch (e) {}
       }
-    } catch (e) { }
+    } catch (e) {}
   }
   return matchedPaths;
 }

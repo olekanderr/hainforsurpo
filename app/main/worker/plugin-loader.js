@@ -55,8 +55,7 @@ module.exports = () => {
       const prefSchemaPath = path.join(pluginFile, 'preferences.json');
       const prefSchemaFallbackPath = path.join(pluginFile, 'preferences.js');
       let prefSchema = null;
-      if (fs.existsSync(prefSchemaPath))
-        prefSchema = require(prefSchemaPath);
+      if (fs.existsSync(prefSchemaPath)) prefSchema = require(prefSchemaPath);
       else if (fs.existsSync(prefSchemaFallbackPath))
         prefSchema = require(prefSchemaFallbackPath);
 
@@ -92,13 +91,11 @@ module.exports = () => {
       }
 
       const PluginModule = pickPluginModule(pluginFile);
-      if (PluginModule === null)
-        continue;
+      if (PluginModule === null) continue;
 
       const pluginId = path.basename(pluginFile);
       const pluginConfig = parsePluginConfig(pluginId, pluginFile);
-      if (pluginConfig === null)
-        continue;
+      if (pluginConfig === null) continue;
 
       try {
         const pluginContext = generateContextFunc(pluginId, pluginConfig);

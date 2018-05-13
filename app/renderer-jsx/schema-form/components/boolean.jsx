@@ -3,7 +3,6 @@
 import React from 'react';
 import { Checkbox } from 'material-ui';
 
-
 class BooleanComponent extends React.Component {
   handleCheck(obj, val) {
     const { onChange, path } = this.props;
@@ -16,8 +15,12 @@ class BooleanComponent extends React.Component {
     const checked = model || false;
     return (
       <div>
-        <Checkbox name="check" label={title} checked={checked}
-                  onCheck={this.handleCheck.bind(this)} />
+        <Checkbox
+          name="check"
+          label={title}
+          checked={checked}
+          onCheck={this.handleCheck.bind(this)}
+        />
       </div>
     );
   }

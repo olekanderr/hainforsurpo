@@ -18,10 +18,10 @@ class EnumComponent extends React.Component {
     const items = [];
 
     if (title !== undefined)
-      title = (<h5 style={{ marginBottom: '2px' }}>{title}</h5>);
+      title = <h5 style={{ marginBottom: '2px' }}>{title}</h5>;
 
     for (const itemData of schema.enum) {
-      const item = (<MenuItem primaryText={itemData} value={itemData} />);
+      const item = <MenuItem primaryText={itemData} value={itemData} />;
       items.push(item);
     }
 
@@ -29,10 +29,14 @@ class EnumComponent extends React.Component {
       <div>
         {title}
         {description}
-        <SelectField name="text" value={model}
-                   fullWidth={true} style={{ marginTop: '-2px' }}
-                   onChange={this.handleChange.bind(this)} >
-         {items}
+        <SelectField
+          name="text"
+          value={model}
+          fullWidth={true}
+          style={{ marginTop: '-2px' }}
+          onChange={this.handleChange.bind(this)}
+        >
+          {items}
         </SelectField>
       </div>
     );

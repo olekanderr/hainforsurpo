@@ -13,19 +13,17 @@ module.exports = class PrefManager {
     this.appPref = appPref;
   }
   getPrefItems() {
-    return this.workerProxy.getPluginPrefIds()
-      .then((pluginPrefIds) => {
-        const pluginPrefItems = pluginPrefIds.map((id) => ({
-          id,
-          group: 'Plugins'
-        }));
-        const prefItems = [appPrefItem].concat(pluginPrefItems);
-        return prefItems;
-      });
+    return this.workerProxy.getPluginPrefIds().then((pluginPrefIds) => {
+      const pluginPrefItems = pluginPrefIds.map((id) => ({
+        id,
+        group: 'Plugins'
+      }));
+      const prefItems = [appPrefItem].concat(pluginPrefItems);
+      return prefItems;
+    });
   }
   getPreferences(prefId) {
-    if (prefId === APP_PREF_ID)
-      return this.appPref.toPrefFormat();
+    if (prefId === APP_PREF_ID) return this.appPref.toPrefFormat();
     return this.workerProxy.getPreferences(prefId);
   }
   updatePreferences(prefId, model) {

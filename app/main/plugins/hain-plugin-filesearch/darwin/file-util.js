@@ -12,8 +12,7 @@ function* findApplications(dirPath, recursive) {
     const dir = pendingDirs.shift();
     const realdir = yield fsp.realpath(dir);
 
-    if (scannedDirs[realdir])
-      continue;
+    if (scannedDirs[realdir]) continue;
     scannedDirs[realdir] = true;
 
     try {
@@ -25,11 +24,10 @@ function* findApplications(dirPath, recursive) {
           const stat = yield fsp.stat(filePath);
           if (stat.isDirectory() && extName === '.app')
             matchedPaths.push(filePath);
-          else if (stat.isDirectory() && recursive)
-            pendingDirs.push(filePath);
-        } catch (e) { }
+          else if (stat.isDirectory() && recursive) pendingDirs.push(filePath);
+        } catch (e) {}
       }
-    } catch (e) { }
+    } catch (e) {}
   }
   return matchedPaths;
 }

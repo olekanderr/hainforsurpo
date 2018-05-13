@@ -5,8 +5,7 @@ const lo_assign = require('lodash.assign');
 
 function traverse(model, schema, callback, setter) {
   const objType = schema.type;
-  if (model === undefined || model === null)
-    return;
+  if (model === undefined || model === null) return;
   if (objType === 'object') {
     const props = schema.properties;
     for (const propName in props) {
@@ -27,8 +26,7 @@ function traverse(model, schema, callback, setter) {
     }
   } else {
     const ret = callback(model, schema);
-    if (ret !== undefined)
-      setter(ret);
+    if (ret !== undefined) setter(ret);
   }
 }
 
@@ -39,10 +37,8 @@ function decode(model, schema, options) {
       let _encrypted = null;
       try {
         _encrypted = cryptoUtil.decrypt(_model, options.encryptionKey);
-      } catch (err) {
-      }
-      if (_encrypted !== null)
-        return _encrypted;
+      } catch (err) {}
+      if (_encrypted !== null) return _encrypted;
       return '';
     }
   });

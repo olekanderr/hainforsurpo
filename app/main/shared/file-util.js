@@ -5,7 +5,7 @@ const tarball = require('tarball-extract');
 
 const self = {};
 
-self.extractTarball = function (filePath, destPath) {
+self.extractTarball = function(filePath, destPath) {
   return new Promise((resolve, reject) => {
     tarball.extractTarball(filePath, destPath, (err) => {
       if (err) {
@@ -16,7 +16,7 @@ self.extractTarball = function (filePath, destPath) {
   });
 };
 
-self.move = function (src, dst) {
+self.move = function(src, dst) {
   return new Promise((resolve, reject) => {
     fs.move(src, dst, { clobber: true }, (err) => {
       if (err) return reject(err);
@@ -25,7 +25,7 @@ self.move = function (src, dst) {
   });
 };
 
-self.remove = function (path) {
+self.remove = function(path) {
   return new Promise((resolve, reject) => {
     fs.remove(path, (err) => {
       if (err) return reject(err);
@@ -34,7 +34,7 @@ self.remove = function (path) {
   });
 };
 
-self.ensureDir = function (path) {
+self.ensureDir = function(path) {
   return new Promise((resolve, reject) => {
     fs.ensureDir(path, (err) => {
       if (err) return reject(err);
@@ -43,7 +43,7 @@ self.ensureDir = function (path) {
   });
 };
 
-self.readdir = function (path) {
+self.readdir = function(path) {
   return new Promise((resolve, reject) => {
     fs.readdir(path, (err, files) => {
       if (err) return reject(err);
@@ -52,7 +52,7 @@ self.readdir = function (path) {
   });
 };
 
-self.readFile = function (filePath) {
+self.readFile = function(filePath) {
   return new Promise((resolve, reject) => {
     fs.readFile(filePath, (err, contents) => {
       if (err) return reject(err);

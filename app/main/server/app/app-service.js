@@ -38,28 +38,27 @@ module.exports = class AppService {
   }
   initializeAndLaunch() {
     const self = this;
-    return co(function* () {
-      if (firstLaunch.isFirstLaunch)
-        autoLauncher.enable();
+    return co(function*() {
+      if (firstLaunch.isFirstLaunch) autoLauncher.enable();
 
-      const isRestarted = (lo_includes(process.argv, '--restarted'));
-      const silentLaunch = (lo_includes(process.argv, '--silent') || autoLauncher.isLaunchedAtLogin());
-      const shouldQuit = electronApp.makeSingleInstance((cmdLine, workingDir) => {
-        if (self._isRestarting)
-          return;
-        self.mainWindow.show();
-      });
+      const isRestarted = lo_includes(process.argv, '--restarted');
+      const silentLaunch =
+        lo_includes(process.argv, '--silent') ||
+        autoLauncher.isLaunchedAtLogin();
+      const shouldQuit = electronApp.makeSingleInstance(
+        (cmdLine, workingDir) => {
+          if (self._isRestarting) return;
+          self.mainWindow.show();
+        }
+      );
 
-      if (shouldQuit && !isRestarted)
-        return electronApp.quit();
+      if (shouldQuit && !isRestarted) return electronApp.quit();
 
       electronApp.on('ready', () => {
         self.shortcutService.initializeShortcuts();
         self.mainWindow.createWindow(() => {
-          if (!silentLaunch || isRestarted)
-            self.mainWindow.show();
-          if (isRestarted)
-            self.mainWindow.enqueueToast('Restarted');
+          if (!silentLaunch || isRestarted) self.mainWindow.show();
+          if (isRestarted) self.mainWindow.enqueueToast('Restarted');
         });
 
         self.trayService.createTray();
@@ -68,27 +67,22 @@ module.exports = class AppService {
       });
 
       // Hide dock icon for macOS
-      if (process.platform === 'darwin')
-        electronApp.dock.hide();
+      if (process.platform === 'darwin') electronApp.dock.hide();
     }).catch((err) => {
       logger.error(err);
     });
   }
   open(query) {
     this.mainWindow.show();
-    if (query !== undefined)
-      this.mainWindow.setQuery(query);
+    if (query !== undefined) this.mainWindow.setQuery(query);
   }
   restart() {
-    if (this._isRestarting)
-      return;
+    if (this._isRestarting) return;
     this._isRestarting = true;
 
     const argv = [].concat(process.argv);
-    if (!lo_includes(argv, '--restarted'))
-      argv.push('--restarted');
-    if (!argv[0].startsWith('"'))
-      argv[0] = `"${argv[0]}"`;
+    if (!lo_includes(argv, '--restarted')) argv.push('--restarted');
+    if (!argv[0].startsWith('"')) argv[0] = `"${argv[0]}"`;
 
     cp.exec(argv.join(' '));
     setTimeout(() => this.quit(), 500);
@@ -107,7 +101,6 @@ module.exports = class AppService {
   }
   setSelectionIndex(selId) {
     this.mainWindow.show();
-    if (selId !== undefined)
-      this.mainWindow.setSelectionIndex(selId);
+    if (selId !== undefined) this.mainWindow.setSelectionIndex(selId);
   }
 };

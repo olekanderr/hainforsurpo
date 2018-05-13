@@ -11,8 +11,7 @@ let native = null;
 try {
   const _native = require(`./${nativeModuleName}`);
   native = _native;
-} catch (e) {
-}
+} catch (e) {}
 
 // assign mock object
 if (native === null) {
@@ -36,7 +35,6 @@ function fetchFileIconAsPng(filePath, callback) {
 function saveFocus() {
   native.saveFocus();
 }
-
 
 function restoreFocus() {
   native.restoreFocus();

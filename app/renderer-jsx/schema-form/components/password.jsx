@@ -18,15 +18,21 @@ class PasswordComponent extends React.Component {
     const description = utils.wrapDescription(schema.description);
 
     if (title !== undefined)
-      title = (<h5 style={{ marginBottom: '2px' }}>{title}</h5>);
+      title = <h5 style={{ marginBottom: '2px' }}>{title}</h5>;
 
     return (
       <div>
         {title}
         {description}
-        <TextField type="password" name="text" value={model} errorText={error}
-                   fullWidth={true} style={{ marginTop: '-2px' }}
-                   onChange={this.handleChange.bind(this)} />
+        <TextField
+          type="password"
+          name="text"
+          value={model}
+          errorText={error}
+          fullWidth={true}
+          style={{ marginTop: '-2px' }}
+          onChange={this.handleChange.bind(this)}
+        />
       </div>
     );
   }

@@ -9,7 +9,7 @@ function checkForUpdate() {
       Accept: 'application/vnd.github.v3+json'
     },
     json: true
-  }).then(res => {
+  }).then((res) => {
     const latest = res.body[0];
     const latestUrl = latest.html_url;
     const latestVersion = latest.tag_name.substring(1);

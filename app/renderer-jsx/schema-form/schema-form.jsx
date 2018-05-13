@@ -10,7 +10,10 @@ import { Validator } from 'jsonschema';
 const validator = new Validator();
 const componentSelector = require('./component-selector');
 
-componentSelector.inject((schema) => schema.enum !== undefined, require('./components/enum'));
+componentSelector.inject(
+  (schema) => schema.enum !== undefined,
+  require('./components/enum')
+);
 componentSelector.inject('object', require('./components/object'));
 componentSelector.inject('array', require('./components/array'));
 componentSelector.inject('string', require('./components/string'));
@@ -52,16 +55,21 @@ class SchemaForm extends React.Component {
     let headerComponent = null;
 
     if (title) {
-      headerComponent = (<CardTitle title={title} />);
+      headerComponent = <CardTitle title={title} />;
     }
 
     return (
       <div>
         {headerComponent}
         <CardText>
-          <FormComponent path="" title={title} schema={schema} model={model}
-                        onChange={this.handleChange.bind(this)}
-                        errors={errors} />
+          <FormComponent
+            path=""
+            title={title}
+            schema={schema}
+            model={model}
+            onChange={this.handleChange.bind(this)}
+            errors={errors}
+          />
         </CardText>
       </div>
     );

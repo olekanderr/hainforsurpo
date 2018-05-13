@@ -13,7 +13,11 @@ module.exports = class PrefWindow {
   constructor(prefManager) {
     this.browserWindow = null;
     this.prefManager = prefManager;
-    this.rpc = RpcChannel.create('#prefWindow', this._send.bind(this), this._on.bind(this));
+    this.rpc = RpcChannel.create(
+      '#prefWindow',
+      this._send.bind(this),
+      this._on.bind(this)
+    );
     this._setupHandlers();
   }
   _setupHandlers() {
@@ -69,8 +73,7 @@ module.exports = class PrefWindow {
   }
   _generateUrl(prefId) {
     const baseUrl = `file://${__dirname}/../../../../dist/preferences.html`;
-    if (prefId)
-      return `${baseUrl}#${prefId}`;
+    if (prefId) return `${baseUrl}#${prefId}`;
     return baseUrl;
   }
   _send(channel, msg) {

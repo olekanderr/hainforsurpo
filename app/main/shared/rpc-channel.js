@@ -24,8 +24,7 @@ class RpcChannel {
   _handleReturnMessage(msg) {
     const { id, error } = msg;
     const waitingHandler = this.waitingHandlers[id];
-    if (waitingHandler === undefined)
-      return;
+    if (waitingHandler === undefined) return;
 
     if (error !== undefined) {
       waitingHandler.reject(error);
@@ -54,7 +53,7 @@ class RpcChannel {
       return;
     }
 
-    const isPromise = (result && typeof result.then === 'function');
+    const isPromise = result && typeof result.then === 'function';
     if (!isPromise) {
       this.send(this.channel, { type: 'return', id, result });
       return;
@@ -84,8 +83,12 @@ module.exports = {
     return new RpcChannel(channel, send, listen);
   },
   createWithIpcRenderer: (channel, ipc) => {
-    return new RpcChannel(channel, ipc.send.bind(ipc), (ipcChannel, listener) => {
-      ipc.on(ipcChannel, (evt, msg) => listener(msg));
-    });
+    return new RpcChannel(
+      channel,
+      ipc.send.bind(ipc),
+      (ipcChannel, listener) => {
+        ipc.on(ipcChannel, (evt, msg) => listener(msg));
+      }
+    );
   }
 };
