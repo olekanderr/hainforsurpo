@@ -6,9 +6,9 @@
     "dev": "gulp && node ./run",
     "build": "gulp build-all",
     "build-debian": "gulp build-debian",
-    "test": "eslint . && cd app && jest",
+    "test": "eslint . --ext .js --ext .jsx && cd app && jest",
     "tdd": "cd app && jest --watch",
-    "lint": "eslint ."
+    "lint": "eslint . --ext .js --ext .jsx"
   },
   "author": "Heejin Lee <monster@teamappetizer.com>",
   "license": "MIT",

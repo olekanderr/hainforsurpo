@@ -1,5 +1,9 @@
 {
-  "extends": ["recommended/node", "plugin:prettier/recommended"],
+  "extends": [
+    "recommended/node",
+    "plugin:prettier/recommended",
+    "plugin:import/react"
+  ],
   "rules": {
     "comma-dangle": ["warn", "only-multiline"],
     "no-unused-vars": ["error", { "vars": "all", "args": "none", "ignoreRestSiblings": false }],
@@ -36,10 +40,21 @@
     "eqeqeq": "off",
     "require-yield": "off",
     "class-methods-use-this": "off",
-    "prettier/prettier": "error"
+    "prettier/prettier": "error",
+    "react/jsx-uses-react": "error",
+    "react/jsx-uses-vars": "error"
   },
   "env": {
-    "jest": true
+    "jest": true,
+    "browser": true,
+    "jquery": true
+  },
+  "settings": {
+    "import/resolver": {
+      "node": {
+        "extensions": [".js", ".jsx"]
+      }
+    }
   },
   "plugins": ["react", "prettier"],
   "parserOptions": {

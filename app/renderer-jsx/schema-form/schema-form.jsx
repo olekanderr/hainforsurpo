@@ -76,4 +76,4 @@ class SchemaForm extends React.Component {
   }
 }
 
-module.exports = SchemaForm;
+export default SchemaForm;

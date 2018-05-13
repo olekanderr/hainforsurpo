@@ -328,11 +328,9 @@ class AppContainer extends React.Component {
         selectedHandler(evt);
         evt.preventDefault();
       }
-    } else {
-      if (selectedHandler !== undefined) {
-        selectedHandler(evt);
-        evt.preventDefault();
-      }
+    } else if (selectedHandler !== undefined) {
+      selectedHandler(evt);
+      evt.preventDefault();
     }
   }
 
@@ -576,7 +574,4 @@ class AppContainer extends React.Component {
   }
 }
 
-const appContainer = ReactDOM.render(
-  <AppContainer />,
-  document.getElementById('app')
-);
+ReactDOM.render(<AppContainer />, document.getElementById('app'));

@@ -12,7 +12,7 @@ class EnumComponent extends React.Component {
   }
 
   render() {
-    const { schema, model, name, path, errors } = this.props;
+    const { schema, model, name } = this.props;
     let title = schema.title || name;
     const description = utils.wrapDescription(schema.description);
     const items = [];

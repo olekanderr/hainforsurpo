@@ -37,4 +37,4 @@ class HTMLFrame extends React.Component {
   }
 }
 
-module.exports = HTMLFrame;
+export default HTMLFrame;
