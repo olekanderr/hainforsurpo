@@ -4,53 +4,70 @@ const electron = require('electron');
 const shell = electron.shell;
 const BrowserWindow = electron.BrowserWindow;
 
+const conf = require('../../../conf');
+
+const { ThemeObject } = require('../../../shared/theme-object');
+
 const platformUtil = require('../../../../native/platform-util');
 const windowUtil = require('./window-util');
 const RpcChannel = require('../../../shared/rpc-channel');
 
 const ipc = electron.ipcMain;
 
-function createWindowOptions() {
-  let options = {
-    width: 800,
-    height: 530,
-    alwaysOnTop: true,
-    center: true,
-    frame: false,
-    show: false,
-    closable: false,
-    minimizable: false,
-    maximizable: false,
-    moveable: false,
-    resizable: false,
-    skipTaskbar: true
-  };
-  const isDarwin = process.platform === 'darwin';
-  if (isDarwin) {
-    options = {
-      ...options,
-      titleBarStyle: 'hidden',
-      vibrancy: 'popover'
-    };
-  }
-  return options;
-}
-
 module.exports = class MainWindow {
-  constructor(workerProxy, appPref) {
+  constructor(workerProxy, prefManager, themeService) {
     this.workerProxy = workerProxy;
-    this.appPref = appPref;
+    this.appPref = prefManager.appPref;
+    this.themePref = prefManager.themePref;
+    this.themeService = themeService;
+
+    this.themeService.loadThemes();
+
+    this.hasWindowShown = false;
     this.browserWindow = null;
     this.rpc = RpcChannel.create(
       '#mainWindow',
       this._send.bind(this),
       this._on.bind(this)
     );
+
     this._setupHandlers();
   }
 
   createWindow(onComplete) {
-    const browserWindow = new BrowserWindow(createWindowOptions());
+    const activeThemeObj = this.themeService.getActiveThemeObj();
+
+    // set initial window options
+    let options = {
+      alwaysOnTop: true,
+      center: true,
+      frame: false,
+      show: false,
+      closable: false,
+      minimizable: false,
+      maximizable: false,
+      moveable: false,
+      resizable: false,
+      skipTaskbar: true,
+      transparent: activeThemeObj.themeObj.window.transparent
+    };
+
+    // if transparency is enabled, also set "vibrancy" (background window blur) for supported platforms
+    if (
+      activeThemeObj.themeObj.window.transparent &&
+      conf.SUPPORTED_PLATFORMS_VIBRANCY.includes(process.platform)
+    ) {
+      // all of these options are needed to enable vibrancy on MacOS
+      options = {
+        ...options,
+        titleBarStyle: 'hidden',
+        vibrancy: activeThemeObj.themeObj.window.vibrancy
+      };
+    }
+
+    // create browser window object from options defined above
+    const browserWindow = new BrowserWindow(options);
+
     if (onComplete) browserWindow.webContents.on('did-finish-load', onComplete);
 
     browserWindow.webContents.on('new-window', (evt, url) => {
@@ -60,6 +77,7 @@ module.exports = class MainWindow {
     browserWindow.loadURL(`file://${__dirname}/../../../../dist/index.html`);
     browserWindow.on('blur', () => {
       if (browserWindow.webContents.isDevToolsOpened()) return;
+
       this.hide(true);
     });
 
@@ -99,22 +117,32 @@ module.exports = class MainWindow {
 
     platformUtil.saveFocus();
 
+    if (!this.hasWindowShown) {
+      this.applyTheme(this.themeService.getActiveThemeObj());
+      this.hasWindowShown = true;
+    }
+
+    // center the window in the middle of the screen?
     if (!this.browserWindow.isVisible())
       windowUtil.centerWindowOnSelectedScreen(
         this.browserWindow,
         this.appPref.get('openOnActiveDisplay')
       );
 
+    // show the main Hain app window
     this.browserWindow.show();
+
+    // if a query has been specified, set it into the input field
     if (query) this.setQuery(query);
   }
 
-  hide(dontRestoreFocus) {
+  hide(doNotRestoreFocus) {
     if (this.browserWindow === null) return;
+
     this.browserWindow.setPosition(0, -10000);
     this.browserWindow.hide();
 
-    if (!dontRestoreFocus) platformUtil.restoreFocus();
+    if (!doNotRestoreFocus) platformUtil.restoreFocus();
   }
 
   toggle(query) {
@@ -158,6 +186,57 @@ module.exports = class MainWindow {
 
   notifyPluginsReloading() {
     this.rpc.call('notifyPluginsReloading');
+  }
+
+  applyTheme(themeObj) {
+    if (this.browserWindow === null) {
+      return;
+    }
+
+    this.browserWindow.setSize(
+      themeObj.themeObj.window.width,
+      themeObj.themeObj.window.height
+    );
+
+    // set background color?
+    const windowColor = ThemeObject.determineTransparentColor(
+      themeObj.themeObj,
+      themeObj.themeObj.window.color,
+      true
+    );
+
+    if (windowColor) {
+      this.browserWindow.webContents.insertCSS(
+        `html { background: ${windowColor} !important; }`
+      );
+    }
+
+    // set scrollbar styling?
+    if (
+      typeof themeObj.themeObj.scrollbar.thickness === 'number' &&
+      typeof themeObj.themeObj.scrollbar.color === 'string'
+    ) {
+      this.browserWindow.webContents.insertCSS(
+        `::-webkit-scrollbar {
+            width: ${themeObj.themeObj.scrollbar.thickness}px !important;
+         }
+         ::-webkit-scrollbar-track {
+           background-color: #eaeaea !important;
+           border-radius: ${themeObj.themeObj.scrollbar.thickness /
+             2}px !important;
+         }
+         ::-webkit-scrollbar-thumb {
+           background-color: ${themeObj.themeObj.scrollbar.color} !important;
+           border-radius: ${themeObj.themeObj.scrollbar.thickness /
+             2}px !important;
+         }
+         ::-webkit-scrollbar-thumb:hover {
+           background-color: #aaa !important;
+         }`
+      );
+    }
+
+    this.rpc.call('applyTheme', themeObj.themeObj);
   }
 
   isContentLoading() {

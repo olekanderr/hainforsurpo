@@ -9,9 +9,11 @@
     window.$ = window.jQuery = require('jquery');
     // DevTools
     document.addEventListener('keydown', function (e) {
-      if (e.which === 123 /* F12 */) {
+      if (e.which === 123) {
+        // F12
         require('electron').remote.getCurrentWindow().toggleDevTools();
-      } else if (e.which === 116 /* F5 */) {
+      } else if (e.which === 116) {
+        // F5
         location.reload();
       }
     });
@@ -19,6 +21,7 @@
   </script>
   <script src="./lib/jquery.scrollTo.min.js"></script>
 </head>
+
 <body>
   <div id="app"></div>
   <script>

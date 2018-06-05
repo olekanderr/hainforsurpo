@@ -29,7 +29,7 @@
     "electron": "^2.0.0",
     "electron-packager": "^8.6.0",
     "electron-winstaller": "^2.5.2",
-    "eslint": "^3.2.2",
+    "eslint": "^3.19.0",
     "eslint-config-prettier": "^2.9.0",
     "eslint-config-recommended": "^1.4.0",
     "eslint-plugin-import": "^1.14.0",

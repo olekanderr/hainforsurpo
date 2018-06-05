@@ -12,6 +12,7 @@ const PrefWindow = require('./ui/pref-window');
 const TrayService = require('./ui/tray-service');
 
 const firstLaunch = require('./first-launch');
+const ThemeService = require('./theme-service');
 const ShortcutService = require('./shortcut-service');
 const iconProtocol = require('./icon-protocol');
 const appIconProtocol = require('./app-icon-protocol');
@@ -31,8 +32,14 @@ module.exports = class AppService {
     this.workerClient = workerClient;
     this.workerProxy = workerProxy;
 
-    this.mainWindow = new MainWindow(workerProxy, prefManager.appPref);
-    this.prefWindow = new PrefWindow(prefManager);
+    this.themeService = new ThemeService(this, prefManager.themePref);
+
+    this.mainWindow = new MainWindow(
+      workerProxy,
+      prefManager,
+      this.themeService
+    );
+    this.prefWindow = new PrefWindow(this, prefManager, this.themeService);
     this.trayService = new TrayService(this, autoLauncher);
     this.shortcutService = new ShortcutService(this, prefManager.appPref);
   }
@@ -45,6 +52,7 @@ module.exports = class AppService {
       const silentLaunch =
         lo_includes(process.argv, '--silent') ||
         autoLauncher.isLaunchedAtLogin();
+
       const shouldQuit = electronApp.makeSingleInstance(
         (cmdLine, workingDir) => {
           if (self._isRestarting) return;
@@ -55,7 +63,9 @@ module.exports = class AppService {
       if (shouldQuit && !isRestarted) return electronApp.quit();
 
       electronApp.on('ready', () => {
-        self.shortcutService.initializeShortcuts();
+        self.themeService.initialize();
+        self.shortcutService.initialize();
+
         self.mainWindow.createWindow(() => {
           if (!silentLaunch || isRestarted) self.mainWindow.show();
           if (isRestarted) self.mainWindow.enqueueToast('Restarted');
