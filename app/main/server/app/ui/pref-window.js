@@ -52,25 +52,47 @@ module.exports = class PrefWindow {
     }
     this._createAndShow(url);
   }
-  _changeRequiresRestart(themePreferencesOnOpen, themePreferencesOnClose) {
+  _changeRequiresRestart(preferencesOnOpen, preferencesOnClose) {
+    // window settings
+    const windowDraggableChanged =
+      preferencesOnOpen[conf.WINDOW_PREF_ID].windowDraggable !==
+      preferencesOnClose[conf.WINDOW_PREF_ID].windowDraggable;
+
+    const rememberWindowPositionChanged =
+      preferencesOnOpen[conf.WINDOW_PREF_ID].rememberWindowPosition !==
+      preferencesOnClose[conf.WINDOW_PREF_ID].rememberWindowPosition;
+
+    // theme settings
     const appTransparencyChanged =
-      themePreferencesOnOpen.enableTransparency !==
-      themePreferencesOnClose.enableTransparency;
+      preferencesOnOpen[conf.THEME_PREF_ID].enableTransparency !==
+      preferencesOnClose[conf.THEME_PREF_ID].enableTransparency;
 
     let vibrancyChanged = false;
     try {
       vibrancyChanged =
         conf.SUPPORTED_PLATFORMS_VIBRANCY.includes(process.platform) &&
-        this.themeService.getThemeObj(themePreferencesOnOpen.activeTheme)
-          .themeObj.window.vibrancy !==
-          this.themeService.getThemeObj(themePreferencesOnClose.activeTheme)
-            .themeObj.window.vibrancy;
+        this.themeService.getThemeObj(
+          preferencesOnOpen[conf.THEME_PREF_ID].activeTheme
+        ).themeObj.window.vibrancy !==
+          this.themeService.getThemeObj(
+            preferencesOnClose[conf.THEME_PREF_ID].activeTheme
+          ).themeObj.window.vibrancy;
     } catch (e) {}
 
-    return appTransparencyChanged || vibrancyChanged;
+    // return true if any of the above settings have changed
+    return (
+      windowDraggableChanged ||
+      rememberWindowPositionChanged ||
+      appTransparencyChanged ||
+      vibrancyChanged
+    );
   }
   _createAndShow(url) {
-    const themePreferencesOnOpen = this.prefManager.getPreferences(
+    const preferencesOnOpen = {};
+    preferencesOnOpen[conf.WINDOW_PREF_ID] = this.prefManager.getPreferences(
+      conf.WINDOW_PREF_ID
+    ).model;
+    preferencesOnOpen[conf.THEME_PREF_ID] = this.prefManager.getPreferences(
       conf.THEME_PREF_ID
     ).model;
 
@@ -86,22 +108,21 @@ module.exports = class PrefWindow {
       // ensure any shortcuts entered are valid - if not, raise alert message box and do not save preferences
       if (!this.prefManager.verifyPreferences()) {
         evt.preventDefault();
-        dialog.showErrorBox('Hain', 'Invalid shortcut.');
+        dialog.showErrorBox(conf.APP_NAME, 'Invalid shortcut.');
 
         return;
       }
 
       // check for changed settings that require a restart...
-      const themePreferencesOnClose = this.prefManager.getPreferences(
+      const preferencesOnClose = {};
+      preferencesOnClose[conf.WINDOW_PREF_ID] = this.prefManager.getPreferences(
+        conf.WINDOW_PREF_ID
+      ).model;
+      preferencesOnClose[conf.THEME_PREF_ID] = this.prefManager.getPreferences(
         conf.THEME_PREF_ID
       ).model;
 
-      if (
-        !this._changeRequiresRestart(
-          themePreferencesOnOpen,
-          themePreferencesOnClose
-        )
-      ) {
+      if (!this._changeRequiresRestart(preferencesOnOpen, preferencesOnClose)) {
         // ...change does not require a restart, save preferences and close
         this.prefManager.commitPreferences();
         this.browserWindow = null;
@@ -112,11 +133,13 @@ module.exports = class PrefWindow {
       // ...change requires a restart - ask user if they would like to restart app, or cancel change
       const clickedButton = dialog.showMessageBox({
         type: 'question',
-        title: 'Change transparency setting and restart?',
-        message: 'Changing the transparency setting requires Hain to restart.',
+        title: 'Change settings and restart?',
+        message: `Changing these settings requires ${
+          conf.APP_NAME
+        } to restart.`,
         buttons: [
-          'Change setting and restart',
-          'Revert to previous setting',
+          'Change settings and restart',
+          'Revert to previous settings',
           'Cancel'
         ]
       });
@@ -130,15 +153,21 @@ module.exports = class PrefWindow {
 
         return;
       } else if (clickedButton === 1) {
-        // revert setting then close pref window
-        const modifiedThemePreferences = this.prefManager.getPreferences(
-          conf.THEME_PREF_ID
-        );
-        modifiedThemePreferences.model.enableTransparency =
-          themePreferencesOnOpen.enableTransparency;
-        modifiedThemePreferences.model.activeTheme =
-          themePreferencesOnOpen.activeTheme;
+        // revert window settings
+        preferencesOnClose[conf.WINDOW_PREF_ID].windowDraggable =
+          preferencesOnOpen[conf.WINDOW_PREF_ID].windowDraggable;
 
+        preferencesOnClose[conf.WINDOW_PREF_ID].rememberWindowPosition =
+          preferencesOnOpen[conf.WINDOW_PREF_ID].rememberWindowPosition;
+
+        // revert theme settings
+        preferencesOnClose[conf.THEME_PREF_ID].enableTransparency =
+          preferencesOnOpen[conf.THEME_PREF_ID].enableTransparency;
+
+        preferencesOnClose[conf.THEME_PREF_ID].activeTheme =
+          preferencesOnOpen[conf.THEME_PREF_ID].activeTheme;
+
+        // close pref window
         this.browserWindow = null;
         return;
       } else if (clickedButton === 2) {
@@ -154,7 +183,7 @@ module.exports = class PrefWindow {
     });
     this.browserWindow.setMenuBarVisibility(false);
 
-    windowUtil.centerWindowOnSelectedScreen(this.browserWindow);
+    windowUtil.centerWindowOnScreen(this.browserWindow);
     this.browserWindow.show();
   }
   _generateUrl(prefId) {

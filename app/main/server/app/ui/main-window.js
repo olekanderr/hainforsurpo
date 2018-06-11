@@ -1,5 +1,7 @@
 'use strict';
 
+const lo_debounce = require('lodash.debounce');
+
 const electron = require('electron');
 const shell = electron.shell;
 const BrowserWindow = electron.BrowserWindow;
@@ -17,7 +19,7 @@ const ipc = electron.ipcMain;
 module.exports = class MainWindow {
   constructor(workerProxy, prefManager, themeService) {
     this.workerProxy = workerProxy;
-    this.appPref = prefManager.appPref;
+    this.windowPref = prefManager.windowPref;
     this.themePref = prefManager.themePref;
     this.themeService = themeService;
 
@@ -46,7 +48,7 @@ module.exports = class MainWindow {
       closable: false,
       minimizable: false,
       maximizable: false,
-      moveable: false,
+      movable: this.windowPref.get('windowDraggable'),
       resizable: false,
       skipTaskbar: true,
       transparent: activeThemeObj.themeObj.window.transparent
@@ -75,12 +77,75 @@ module.exports = class MainWindow {
       evt.preventDefault();
     });
     browserWindow.loadURL(`file://${__dirname}/../../../../dist/index.html`);
+
+    // process list of available displays into user-friendly list
+    const displays = electron.screen.getAllDisplays();
+    const displayList = [];
+
+    for (const i in displays) {
+      displayList.push([
+        displays[i].id,
+        `Display ${parseInt(i, 10) + 1} (${displays[i].size.width}x${
+          displays[i].size.height
+        })`
+      ]);
+    }
+
+    // set list of available displays into the preferences UI control
+    this.windowPref.schema.properties.display.properties.openOnSpecificDisplay.enum = displayList;
+
+    // implement lock variable so that we do not attempt to save the window position when the hide event is fired (needed for MacOS)
+    let doNotSavePosition = false;
+
+    // if the window is draggable, observe window move event
+    if (this.windowPref.get('windowDraggable')) {
+      browserWindow.on(
+        'move',
+        lo_debounce((event) => {
+          // refocus text input box
+          this.rpc.call('handleKeyboardFocus');
+
+          // if rememberWindowPosition is selected, observe window position changes and store in preferences
+          if (
+            this.windowPref.get('rememberWindowPosition') &&
+            !doNotSavePosition
+          ) {
+            // get new window position
+            const newPosition = browserWindow.getPosition();
+
+            // if any position is less than 0 (for example when the window is hidden), do not continue
+            if (Math.min(...newPosition) < 0) {
+              return;
+            }
+
+            // set new position values into preferences
+            this.windowPref.model.position.posX = newPosition[0];
+            this.windowPref.model.position.posY = newPosition[1];
+
+            this.windowPref.update(this.windowPref.model);
+            this.windowPref.commit();
+          }
+        }, 200)
+      );
+    }
+
+    // observe window blur event
     browserWindow.on('blur', () => {
       if (browserWindow.webContents.isDevToolsOpened()) return;
 
+      // set lock variable
+      doNotSavePosition = true;
+
+      // hide the window
       this.hide(true);
+
+      // reset lock variable
+      setTimeout(() => {
+        doNotSavePosition = false;
+      }, 500);
     });
 
+    // store internal reference to created BrowserWindow object
     this.browserWindow = browserWindow;
   }
 
@@ -122,12 +187,27 @@ module.exports = class MainWindow {
       this.hasWindowShown = true;
     }
 
-    // center the window in the middle of the screen?
-    if (!this.browserWindow.isVisible())
-      windowUtil.centerWindowOnSelectedScreen(
-        this.browserWindow,
-        this.appPref.get('openOnActiveDisplay')
-      );
+    // set window position
+    if (!this.browserWindow.isVisible()) {
+      const positionWindow = this.windowPref.get('position.positionWindow');
+
+      // get openOnDisplay preference - if this is set to "specified" window, get the selected specified window ID
+      let openOnDisplay = this.windowPref.get('display.openOnDisplay');
+      if (openOnDisplay === 'specified') {
+        openOnDisplay = this.windowPref.get('display.openOnSpecificDisplay');
+      }
+
+      if (positionWindow === 'specified') {
+        // center the window in the middle of the screen
+        windowUtil.positionWindowOnScreen(this.browserWindow, openOnDisplay, [
+          this.windowPref.model.position.posX,
+          this.windowPref.model.position.posY
+        ]);
+      } else {
+        // set to stored previous position
+        windowUtil.centerWindowOnScreen(this.browserWindow, openOnDisplay);
+      }
+    }
 
     // show the main Hain app window
     this.browserWindow.show();
@@ -193,6 +273,8 @@ module.exports = class MainWindow {
       return;
     }
 
+    let cssStr = '';
+
     this.browserWindow.setSize(
       themeObj.themeObj.window.width,
       themeObj.themeObj.window.height
@@ -206,9 +288,24 @@ module.exports = class MainWindow {
     );
 
     if (windowColor) {
-      this.browserWindow.webContents.insertCSS(
-        `html { background: ${windowColor} !important; }`
-      );
+      cssStr += `
+        html { 
+          background: ${windowColor} !important; 
+        }
+      `;
+    }
+
+    // allow window to be draggable?
+    if (this.windowPref.get('windowDraggable')) {
+      cssStr += `
+        body { 
+          -webkit-app-region: drag;
+          user-select: none;
+        }
+        [data-draggable="false"] { 
+          -webkit-app-region: no-drag; 
+        }
+      `;
     }
 
     // set scrollbar styling?
@@ -216,24 +313,29 @@ module.exports = class MainWindow {
       typeof themeObj.themeObj.scrollbar.thickness === 'number' &&
       typeof themeObj.themeObj.scrollbar.color === 'string'
     ) {
-      this.browserWindow.webContents.insertCSS(
-        `::-webkit-scrollbar {
-            width: ${themeObj.themeObj.scrollbar.thickness}px !important;
-         }
-         ::-webkit-scrollbar-track {
-           background-color: #eaeaea !important;
-           border-radius: ${themeObj.themeObj.scrollbar.thickness /
-             2}px !important;
-         }
-         ::-webkit-scrollbar-thumb {
-           background-color: ${themeObj.themeObj.scrollbar.color} !important;
-           border-radius: ${themeObj.themeObj.scrollbar.thickness /
-             2}px !important;
-         }
-         ::-webkit-scrollbar-thumb:hover {
-           background-color: #aaa !important;
-         }`
-      );
+      cssStr += `
+        ::-webkit-scrollbar {
+          width: ${themeObj.themeObj.scrollbar.thickness}px !important;
+        }
+        ::-webkit-scrollbar-track {
+          background-color: #eaeaea !important;
+          border-radius: ${themeObj.themeObj.scrollbar.thickness /
+            2}px !important;
+        }
+        ::-webkit-scrollbar-thumb {
+          background-color: ${themeObj.themeObj.scrollbar.color} !important;
+          border-radius: ${themeObj.themeObj.scrollbar.thickness /
+            2}px !important;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background-color: #aaa !important;
+        }
+      `;
+    }
+
+    // if we have created a CSS string, set it into the window
+    if (cssStr) {
+      this.browserWindow.webContents.insertCSS(cssStr);
     }
 
     this.rpc.call('applyTheme', themeObj.themeObj);

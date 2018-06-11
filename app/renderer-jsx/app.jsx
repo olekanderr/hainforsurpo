@@ -108,6 +108,9 @@ class AppContainer extends React.Component {
     rpc.define('log', (payload) => {
       console.log(...payload);
     });
+    rpc.define('handleKeyboardFocus', () => {
+      this.handleKeyboardFocus();
+    });
     rpc.define('setQuery', (payload) => {
       this.setQuery(payload);
     });
@@ -116,13 +119,6 @@ class AppContainer extends React.Component {
     });
     rpc.define('requestAddResults', (__payload) => {
       const { ticket, type, payload } = __payload;
-
-      console.log(
-        'app.jsx -> rpc(requestAddResults), ticket=%s, type=%s, payload=%o',
-        ticket,
-        type,
-        payload
-      );
 
       if (searchTicket.current !== ticket) return;
 
@@ -475,7 +471,7 @@ class AppContainer extends React.Component {
   }
 
   render() {
-    // set independent theme objects for sections of the main window - this allows us to acheive the styling that we need
+    // set independent theme objects for sections of the main window - this allows us to achieve the styling that we need
     const muiThemeWindow = getMuiTheme({
       userAgent: false
     });
@@ -578,6 +574,7 @@ class AppContainer extends React.Component {
           onKeyDown={this.handleKeyDown.bind(this)}
           leftAvatar={avatar}
           rightIconButton={rightIcon}
+          data-draggable="false"
         />
       );
     }
@@ -633,7 +630,9 @@ class AppContainer extends React.Component {
                 fontSize: '12px'
               }}
             >
-              <table style={{ width: '100%', borderSpacing: 0 }}>
+              <table
+                style={{ width: '100%', borderSpacing: 0, userSelect: 'none' }}
+              >
                 <tr>
                   <td style={{ fontWeight: 700, fontSize: '14px' }}>Hain</td>
                   <td style={{ textAlign: 'right' }}>
@@ -671,6 +670,7 @@ class AppContainer extends React.Component {
                   value={this.state.query}
                   onKeyDown={this.handleKeyDown.bind(this)}
                   onChange={this.handleChange.bind(this)}
+                  data-draggable="false"
                 />
               </MuiThemeProvider>
             </div>
