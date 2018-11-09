@@ -2,7 +2,6 @@
 
 const lo_includes = require('lodash.includes');
 const co = require('co');
-const cp = require('child_process');
 
 const electron = require('electron');
 const electronApp = electron.app;
@@ -90,12 +89,11 @@ module.exports = class AppService {
     if (this._isRestarting) return;
     this._isRestarting = true;
 
-    const argv = [].concat(process.argv);
-    if (!lo_includes(argv, '--restarted')) argv.push('--restarted');
-    if (!argv[0].startsWith('"')) argv[0] = `"${argv[0]}"`;
+    const args = process.argv.slice(1);
+    if (!lo_includes(args, '--restarted')) args.push('--restarted');
 
-    cp.exec(argv.join(' '));
-    setTimeout(() => this.quit(), 500);
+    electronApp.relaunch({ args });
+    this.quit();
   }
   quit() {
     electronApp.exit(0);
