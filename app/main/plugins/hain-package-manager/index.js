@@ -145,10 +145,12 @@ module.exports = (context) => {
   function _fuzzy(cmdType, packages, keyword) {
     if (keyword.length <= 0)
       return packages.map((x) => _toSearchResult(cmdType, x));
-    return matchUtil.fuzzy(packages, keyword.trim(), (x) => x.name).map((x) => {
-      const m = matchUtil.makeStringBoldHtml(x.elem.name, x.matches);
-      return _toSearchResult(cmdType, x.elem, m);
-    });
+    return matchUtil
+      .fuzzy(packages, keyword.trim(), (x) => x.name)
+      .map((x) => {
+        const m = matchUtil.makeStringBoldHtml(x.elem.name, x.matches);
+        return _toSearchResult(cmdType, x.elem, m);
+      });
   }
 
   function parseCommands(query) {
