@@ -4,6 +4,7 @@ branches:
     - develop
     - /.*appveyor.*/
     - /v.+/
+    - /.*ci.*/
 
 environment:
   nodejs_version: "8.9.4"
