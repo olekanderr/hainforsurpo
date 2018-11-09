@@ -36,6 +36,13 @@ See [THEMES.md](THEMES.md)
 
 See [Plugin Documentation](http://hainproject.github.io/hain/docs/)
 
+## Development Requirements
+
+- Node.js v8.9.x
+- npm v5.6.x
+
+> See `engines` property in `package.json`
+
 ## Install/Build from Source
 
 ```shell
